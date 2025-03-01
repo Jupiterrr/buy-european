@@ -11,7 +11,7 @@ declare global {
 
 export default function RootLayout() {
   useEffect(() => {
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       window.frameworkReady?.();
     }
   }, []);
@@ -21,15 +21,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: true }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
-          name="scan-eu"
-          options={{
-            title: "",
-            headerTintColor: "black",
-            headerTransparent: true,
-          }}
-        />
-        <Stack.Screen
-          name="scan-non-eu"
+          name="product"
           options={{
             title: "",
             headerTintColor: "black",

@@ -35,6 +35,12 @@ interface Product {
     sugars: string;
     [key: string]: string;
   };
+  image_front_url: string;
+  image_front_small_url: string;
+  image_front_thumb_url: string;
+  image_front_display_url: string;
+  image_front_small_display_url: string;
+  
   images: {
     [key: string]: {
       sizes: {

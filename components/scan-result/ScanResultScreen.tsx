@@ -13,20 +13,16 @@ import { useEffect } from "react";
 
 type Product = typeof exampleProduct;
 
-export function ScanResultScreen({
-  type,
-  product,
-}: {
-  type: "eu" | "foreign" | "us";
-  product?: Product;
-}) {
-  const isEuProduct = type === "eu";
-  product = exampleProduct;
+export function ScanResultScreen({ product }: { product?: Product; code?: string }) {
+  const isEuProduct = false;
 
-  if (!product) {
+  console.log("product", product);
+  // product = product;
+
+  if (product && product.result.id !== "product_found") {
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>Type: {type}</Text>
+        <Text style={styles.message}>{product.result.name}</Text>
       </View>
     );
   }
@@ -35,11 +31,11 @@ export function ScanResultScreen({
     return madeInEu ? <Text>🇪🇺 Yes</Text> : <Text>⛔ No</Text>;
   }
 
-  const opacity = useSharedValue(0);
+  const opacity = useSharedValue(0.5);
 
   useEffect(() => {
     opacity.value = withSequence(
-      withDelay(200, withTiming(1, { duration: 100, easing: Easing.linear })),
+      withDelay(50, withTiming(1, { duration: 100, easing: Easing.linear })),
       withDelay(500, withTiming(0, { duration: 500, easing: Easing.linear }))
     );
   }, []);
@@ -53,13 +49,17 @@ export function ScanResultScreen({
   return (
     <View style={styles.container}>
       <Animated.View
-        style={[styles.statusOverlay, isEuProduct ? styles.statusOverlayOk : styles.statusOverlayError, overlayAnimatedStyle]}
+        style={[
+          styles.statusOverlay,
+          isEuProduct ? styles.statusOverlayOk : styles.statusOverlayError,
+          overlayAnimatedStyle,
+        ]}
       ></Animated.View>
 
       <ScrollView>
         <View style={styles.image2Container}>
           <Image
-            source={{ uri: product.product.selected_images.front.display.de }}
+            source={{ uri: product.product.image_front_url }}
             style={styles.image2}
             resizeMode="contain"
           />
@@ -85,7 +85,7 @@ export function ScanResultScreen({
         ) : (
           <View style={[styles.euContainer, { backgroundColor: "#cbd5e1" }]}>
             <BanIcon size={24} color="red" />
-            <Text style={[styles.euText, {  }]}>This is a non-European product.</Text>
+            <Text style={[styles.euText, {}]}>This is a non-European product.</Text>
           </View>
         )}
 
