@@ -2,7 +2,7 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { AlertCircle, CheckCircle, ScanLine, XCircle } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { companiesDatabase } from './database';
+import { companiesDatabase } from '../../components/database';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function ScanScreen() {
