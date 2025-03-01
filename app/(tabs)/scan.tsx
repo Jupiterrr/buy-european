@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
-import { ScanLine, CircleAlert as AlertCircle, CircleCheck as CheckCircle, Circle as XCircle } from 'lucide-react-native';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { AlertCircle, CheckCircle, ScanLine, XCircle } from 'lucide-react-native';
+import { useState } from 'react';
+import { Button, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 // Mock database of products
 // In a real app, this would be fetched from an API
@@ -19,34 +19,34 @@ const productDatabase = {
 };
 
 export default function ScanScreen() {
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+
   const [scanned, setScanned] = useState(false);
   const [product, setProduct] = useState<any>(null);
 
-  useEffect(() => {
-    (async () => {
-      if (Platform.OS !== 'web') {
-        const { status } = await BarCodeScanner.requestPermissionsAsync();
-        setHasPermission(status === 'granted');
-      } else {
-        // Web doesn't need camera permissions
-        setHasPermission(true);
-      }
-    })();
-  }, []);
+  if (!permission) {
+    // Camera permissions are still loading.
+    return <View />;
+  }
+
+  if (!permission.granted) {
+    // Camera permissions are not granted yet.
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>We need your permission to show the camera</Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
+  }
+
+
+
 
   const handleBarCodeScanned = ({ type, data }: { type: string; data: string }) => {
-    setScanned(true);
-    
-    // Look up the product in our database
-    const foundProduct = productDatabase[data];
-    
-    if (foundProduct) {
-      setProduct(foundProduct);
-    } else {
-      // If product not found, show a message
-      setProduct({ name: 'Unknown Product', origin: 'Unknown', barcode: data });
-    }
+    // setScanned(true);
+    alert(`Barcode type: ${type}\nData: ${data}`);
+
+    return;
   };
 
   // For web demo purposes, let's add a function to simulate scanning
@@ -54,23 +54,7 @@ export default function ScanScreen() {
     handleBarCodeScanned({ type: 'simulated', data: barcode });
   };
 
-  if (hasPermission === null) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.text}>Requesting camera permission...</Text>
-      </View>
-    );
-  }
 
-  if (hasPermission === false) {
-    return (
-      <View style={styles.container}>
-        <AlertCircle size={60} color="#FF3B30" style={styles.icon} />
-        <Text style={styles.errorText}>Camera access is required to scan products.</Text>
-        <Text style={styles.text}>Please enable camera permissions in your device settings.</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
@@ -78,10 +62,9 @@ export default function ScanScreen() {
         <>
           {Platform.OS !== 'web' ? (
             <View style={styles.scannerContainer}>
-              <BarCodeScanner
-                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                style={styles.scanner}
-              />
+             <CameraView style={styles.camera} facing='back' onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}>
+              </CameraView>
+
               <View style={styles.overlay}>
                 <View style={styles.scanArea}>
                   <ScanLine size={24} color="#FFFFFF" style={styles.scanIcon} />
@@ -182,8 +165,26 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
+  camera: {
+    flex: 1,
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+    margin: 64,
+  },
+  button: {
+    flex: 1,
+    alignSelf: 'flex-end',
+    alignItems: 'center',
+  },
   scanner: {
     ...StyleSheet.absoluteFillObject,
+  },
+  message: {
+    textAlign: 'center',
+    paddingBottom: 10,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
