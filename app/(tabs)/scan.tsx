@@ -1,28 +1,25 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { AlertCircle, CheckCircle, ScanLine, XCircle } from 'lucide-react-native';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-// Mock database of products
-// In a real app, this would be fetched from an API
-const productDatabase = {
-  '8710447319239': { name: 'Philips Shaver', origin: 'EU', company: 'Philips', country: 'Netherlands' },
-  '5000112637922': { name: 'Cadbury Chocolate', origin: 'Non-EU', company: 'Mondelez International', country: 'USA' },
-  '3017620422003': { name: 'Nutella', origin: 'EU', company: 'Ferrero', country: 'Italy' },
-  '8001505005592': { name: 'Barilla Pasta', origin: 'EU', company: 'Barilla', country: 'Italy' },
-  '5449000000996': { name: 'Coca-Cola', origin: 'Non-EU', company: 'The Coca-Cola Company', country: 'USA' },
-  '4008400202037': { name: 'Haribo Gummies', origin: 'EU', company: 'Haribo', country: 'Germany' },
-  '3046920022651': { name: 'Lindt Chocolate', origin: 'EU', company: 'Lindt & Sprüngli', country: 'Switzerland' },
-  '5000157024466': { name: 'Heinz Ketchup', origin: 'Non-EU', company: 'Kraft Heinz', country: 'USA' },
-  '8000500033784': { name: 'Lavazza Coffee', origin: 'EU', company: 'Lavazza', country: 'Italy' },
-  '3168930010265': { name: 'Evian Water', origin: 'EU', company: 'Danone', country: 'France' },
-};
+import { companiesDatabase } from './database';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
 
   const [scanned, setScanned] = useState(false);
-  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [product, setProduct] = useState<ProductResponse | null>(null);
+
+  // set product to null when open the page again
+  useFocusEffect(
+    useCallback(() => {
+      setProduct(null);
+      setLoading(false);
+      setScanned(false);
+    }, [])
+  );
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -40,20 +37,32 @@ export default function ScanScreen() {
   }
 
 
+  async function handleBarCodeScanned({ type, data }: { type: string; data: string })  {
+    if (loading) {
+      return;
+    }
 
+    if (data && data != '') {
+      setLoading(true);
+    }
+    
+    const url = `https://world.openfoodfacts.org/api/v3/product/${encodeURIComponent(data)}.json`;
+    const response = await fetch(url);
+    const product = await response.json();
+  
+    if (product.result.status === "failure") {
+      throw new Error(product.result.name, { cause: product.result.code });
+    }
 
-  const handleBarCodeScanned = ({ type, data }: { type: string; data: string }) => {
-    // setScanned(true);
-    alert(`Barcode type: ${type}\nData: ${data}`);
-
-    return;
+    setProduct(product);
+    setScanned(true);
+    setLoading(false);
   };
 
   // For web demo purposes, let's add a function to simulate scanning
   const simulateScan = (barcode: string) => {
     handleBarCodeScanned({ type: 'simulated', data: barcode });
   };
-
 
 
   return (
@@ -110,21 +119,21 @@ export default function ScanScreen() {
         </>
       ) : (
         <View style={styles.resultContainer}>
-          {product.origin === 'EU' ? (
+          {companiesDatabase.find((company) => company.name == product?.product.brands)?.origin === 'EU' ? (
             <CheckCircle size={80} color="#4CD964" style={styles.resultIcon} />
-          ) : product.origin === 'Non-EU' ? (
+          ) : companiesDatabase.find((company) => company.name == product?.product.brands)?.origin === 'Non-EU' ? (
             <XCircle size={80} color="#FF3B30" style={styles.resultIcon} />
           ) : (
             <AlertCircle size={80} color="#FF9500" style={styles.resultIcon} />
           )}
           
-          <Text style={styles.productName}>{product.name}</Text>
+          <Text style={styles.productName}>{product?.product.product_name}</Text>
           
-          {product.origin === 'EU' ? (
+          {companiesDatabase.find((company) => company.name == product?.product.brands)?.origin === 'EU' ? (
             <View style={[styles.originBadge, styles.euBadge]}>
               <Text style={styles.originText}>European Product</Text>
             </View>
-          ) : product.origin === 'Non-EU' ? (
+          ) : companiesDatabase.find((company) => company.name == product?.product.brands)?.origin === 'Non-EU' ? (
             <View style={[styles.originBadge, styles.nonEuBadge]}>
               <Text style={styles.originText}>Non-European Product</Text>
             </View>
@@ -134,14 +143,14 @@ export default function ScanScreen() {
             </View>
           )}
           
-          {product.company && (
+          {product?.product.brands && (
             <Text style={styles.companyText}>
-              Company: {product.company} ({product.country})
+              Company: {product.product.brands} ({companiesDatabase.find((company) => company.name == product?.product.brands)?.country})
             </Text>
           )}
           
-          {product.barcode && (
-            <Text style={styles.barcodeText}>Barcode: {product.barcode}</Text>
+          {product?.code && (
+            <Text style={styles.barcodeText}>Barcode: {product.code}</Text>
           )}
           
           <TouchableOpacity 

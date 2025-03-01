@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'r
 import { Search, Filter, CircleCheck as CheckCircle, Circle as XCircle } from 'lucide-react-native';
 
 // Mock database of companies and their origins
-const companiesDatabase = [
+export const companiesDatabase = [
   { id: '1', name: 'Philips', origin: 'EU', country: 'Netherlands', category: 'Electronics' },
   { id: '2', name: 'Mondelez International', origin: 'Non-EU', country: 'USA', category: 'Food' },
   { id: '3', name: 'Ferrero', origin: 'EU', country: 'Italy', category: 'Food' },
@@ -24,6 +24,7 @@ const companiesDatabase = [
   { id: '18', name: 'Volkswagen', origin: 'EU', country: 'Germany', category: 'Automotive' },
   { id: '19', name: 'IKEA', origin: 'EU', country: 'Sweden', category: 'Furniture' },
   { id: '20', name: 'H&M', origin: 'EU', country: 'Sweden', category: 'Fashion' },
+  { id: '21', name: 'Fanta', origin: 'Non-EU', country: 'USA', category: 'Beverages', parentCompany: 'The Coca-Cola Company' },
 ];
 
 type FilterOption = 'All' | 'EU' | 'Non-EU';
