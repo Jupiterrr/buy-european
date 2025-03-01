@@ -2,24 +2,60 @@ import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { AlertCircle, CheckCircle, ScanLine, XCircle } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import { Button, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { companiesDatabase } from "../../components/database";
+import { companiesDatabase } from "../components/database";
 import { useFocusEffect } from "@react-navigation/native";
-import { eanPrefixes } from "./ean_prefix";
-import { ScanResultScreen } from "../../components/scan-result/ScanResultScreen";
+import { eanPrefixes } from "./(tabs)/ean_prefix";
+import { ScanResultScreen } from "../components/scan-result/ScanResultScreen";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
-export default function ScanScreen() {
+export default function ProductScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const router = useRouter();
 
   // const [scanned, setScanned] = useState(false);
-  // const [loading, setLoading] = useState(false);
-  // const [product, setProduct] = useState<ProductResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [product, setProduct] = useState<ProductResponse | null>(null);
   // const [origin, setOrigin] = useState<string | null>(null);
   // const [country, setCountry] = useState<string | null>(null);
 
-  // const params = useLocalSearchParams();
-  // const code: string = typeof params.code === "string" ? params.code : params.code?.[0];
+  const params = useLocalSearchParams();
+  const code: string = typeof params.code === "string" ? params.code : params.code?.[0];
+
+  if (!code) {
+    router.dismissTo("/scan");
+    return null;
+  }
+
+  useEffect(() => {
+    async function fetchProduct() {
+      setLoading(true);
+
+      const url = `https://world.openfoodfacts.org/api/v3/product/${encodeURIComponent(code)}.json`;
+      const response = await fetch(url);
+      const product = await response.json();
+      // const { country, origin } = getCountryFromEAN(code) || { country: null, origin: null };
+      // setCountry(country);
+      // setOrigin(origin);
+
+      console.log("res product", product);
+
+      if (product.result.status === "failure") {
+        throw new Error(product.result.name, { cause: product.result.code });
+      }
+
+      // only shows details if product is found
+      if (product.result.id == "product_found") {
+        setProduct(product);
+        // setScanned(true);
+      }
+
+      setLoading(false);
+    }
+
+    if (code && !product) {
+      fetchProduct();
+    }
+  }, [code, product]);
 
   // set product to null when open the page again
   // useFocusEffect(
@@ -45,81 +81,38 @@ export default function ScanScreen() {
     );
   }
 
-  async function handleBarCodeScanned({ type, data }: { type: string; data: string }) {
-    router.push({
-      pathname: "/product",
-      params: {
-        code: data,
-      },
-    });
+  function getCountryFromEAN(ean: string): { country: string; origin: string } | undefined {
+    if (!ean || ean.length < 3) {
+      return { country: "Unknown", origin: "Unknown" };
+    }
+
+    const prefix = Number(ean.substring(0, 3)); // Convert to a number
+
+    for (const entry of eanPrefixes) {
+      const range = entry.range; // Extract range
+
+      if (Array.isArray(range)) {
+        const min = range[0];
+        const max = range.length > 1 ? range[1] : range[0]; // Handle single-value ranges
+
+        if (prefix >= min && prefix <= max) {
+          // Numeric comparison
+          // setCountry(entry.country);
+          // setOrigin(entry.origin);
+          return {
+            country: entry.country,
+            origin: entry.origin,
+          };
+        }
+      }
+    }
   }
 
-  // For web demo purposes, let's add a function to simulate scanning
-  const simulateScan = (barcode: string) => {
-    handleBarCodeScanned({ type: "simulated", data: barcode });
-  };
+  if (product) {
+    return <ScanResultScreen product={product} code={code} />;
+  }
 
-  return (
-    <View style={styles.container}>
-      {Platform.OS !== "web" ? (
-        <View style={styles.scannerContainer}>
-          <CameraView
-            style={styles.camera}
-            facing="back"
-            onBarcodeScanned={handleBarCodeScanned}
-          ></CameraView>
-
-          <View style={styles.overlay}>
-            <View style={styles.scanArea}>
-              <ScanLine size={24} color="#FFFFFF" style={styles.scanIcon} />
-            </View>
-            <Text style={styles.scanText}>Position barcode within the frame</Text>
-          </View>
-        </View>
-      ) : (
-        // Web fallback - show demo buttons
-        <View style={styles.webDemo}>
-          <Text style={styles.webDemoTitle}>Web Demo Mode</Text>
-          <Text style={styles.webDemoText}>
-            Camera scanning is not available on web. Try these sample products:
-          </Text>
-          <View style={styles.demoButtons}>
-            <TouchableOpacity
-              style={styles.demoButton}
-              onPress={() => simulateScan("5449000000439")}
-            >
-              <Text style={styles.demoButtonText}>Coca-Cola (Non-EU)</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.demoButton}
-              onPress={() => simulateScan("8710447319239")}
-            >
-              <Text style={styles.demoButtonText}>Philips Shaver (EU)</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.demoButton}
-              onPress={() => simulateScan("5000112637922")}
-            >
-              <Text style={styles.demoButtonText}>Cadbury Chocolate (Non-EU)</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.demoButton}
-              onPress={() => simulateScan("3017620422003")}
-            >
-              <Text style={styles.demoButtonText}>Nutella (EU)</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.demoButton}
-              onPress={() => simulateScan("5449000000996")}
-            >
-              <Text style={styles.demoButtonText}>Coca-Cola (Non-EU)</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-    </View>
-  );
+  return <Text>...</Text>;
 }
 
 const styles = StyleSheet.create({

@@ -37,11 +37,11 @@ export default function HomeScreen() {
           </Text>
         </TouchableOpacity> */}
 
-        <TouchableOpacity style={styles.featureCard} onPress={() => router.push("/scan-eu")}>
+        <TouchableOpacity style={styles.featureCard} onPress={() => router.push(`/product?code=4388840103942`)}>
           <Text style={styles.featureTitle}>EU Product</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.featureCard} onPress={() => router.push("/scan-non-eu")}>
+        <TouchableOpacity style={styles.featureCard} onPress={() => router.push("/product?code=5449000000439")}>
           <Text style={styles.featureTitle}>Non-EU Product</Text>
         </TouchableOpacity>
 

@@ -39,6 +39,18 @@ export default function TabLayout() {
           headerTitle: "Buy European",
         }}
       />
+      <Tabs.Screen
+        name="product"
+        options={{
+          href: null,
+          // title: "Product",
+          tabBarIcon: ({ color, size }) => <Rabbit size={size} color={color} />,
+          // headerTitle: "Buy European",
+          title: "",
+          headerTintColor: "black",
+          headerTransparent: true,
+        }}
+      />
     </Tabs>
   );
 }
