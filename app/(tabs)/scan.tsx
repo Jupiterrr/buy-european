@@ -48,12 +48,12 @@ export default function ScanScreen() {
     if (data && data != '') {
       setLoading(true);
     }
-    
+
     const url = `https://world.openfoodfacts.org/api/v3/product/${encodeURIComponent(data)}.json`;
     const response = await fetch(url);
     const product = await response.json();
     getCountryFromEAN(data);
-  
+
     if (product.result.status === "failure") {
       throw new Error(product.result.name, { cause: product.result.code });
     }
@@ -72,12 +72,18 @@ export default function ScanScreen() {
         return { country: "Unknown", origin: "Unknown" };
     }
     
-    const prefix = ean.substring(0, 3);
+    const prefix = Number(ean.substring(0, 3)); // Convert to a number
+    
     for (const entry of eanPrefixes) {
-        for (const range of entry.range) {
-            if (prefix >= range[0] && prefix <= range[range.length - 1]) {
-              setCountry(entry.country);
-              setOrigin(entry.origin);
+        const range = entry.range; // Extract range
+    
+        if (Array.isArray(range)) { 
+            const min = range[0];
+            const max = range.length > 1 ? range[1] : range[0]; // Handle single-value ranges
+    
+            if (prefix >= min && prefix <= max) { // Numeric comparison
+                setCountry(entry.country);
+                setOrigin(entry.origin);
                 return;
             }
         }
