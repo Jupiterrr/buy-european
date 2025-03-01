@@ -9,12 +9,12 @@ import { ScanResultScreen } from "../components/scan-result/ScanResultScreen";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 export default function ProductScreen() {
-  const [permission, requestPermission] = useCameraPermissions();
   const router = useRouter();
 
   // const [scanned, setScanned] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [product, setProduct] = useState<ProductResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
   // const [origin, setOrigin] = useState<string | null>(null);
   // const [country, setCountry] = useState<string | null>(null);
 
@@ -28,7 +28,7 @@ export default function ProductScreen() {
 
   useEffect(() => {
     async function fetchProduct() {
-      setLoading(true);
+      // setLoading(true);
 
       const url = `https://world.openfoodfacts.org/api/v3/product/${encodeURIComponent(code)}.json`;
       const response = await fetch(url);
@@ -40,16 +40,19 @@ export default function ProductScreen() {
       console.log("res product", product);
 
       if (product.result.status === "failure") {
-        throw new Error(product.result.name, { cause: product.result.code });
-      }
-
-      // only shows details if product is found
-      if (product.result.id == "product_found") {
+        console.log("is error", product.result.name);
+        // throw new Error(product.result.name, { cause: product.result.code });
+        setError(product.result.name);
+        setProduct(null);
+        return;
+      } else {
+        console.log("is product found", product.result.name);
         setProduct(product);
+        setError(null);
         // setScanned(true);
       }
 
-      setLoading(false);
+      // setLoading(false);
     }
 
     if (code && !product) {
@@ -65,21 +68,6 @@ export default function ProductScreen() {
   //     // setScanned(false);
   //   }, [])
   // );
-
-  if (!permission) {
-    // Camera permissions are still loading.
-    return <View />;
-  }
-
-  if (!permission.granted) {
-    // Camera permissions are not granted yet.
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
-      </View>
-    );
-  }
 
   function getCountryFromEAN(ean: string): { country: string; origin: string } | undefined {
     if (!ean || ean.length < 3) {
@@ -108,11 +96,15 @@ export default function ProductScreen() {
     }
   }
 
-  if (product) {
-    return <ScanResultScreen product={product} code={code} />;
+  if (error) {
+    return <Text>{error}</Text>;
   }
 
-  return <Text>...</Text>;
+  if (product) {
+    return <ScanResultScreen product={product as any} code={code} />;
+  }
+
+  return <Text>loading...</Text>;
 }
 
 const styles = StyleSheet.create({
