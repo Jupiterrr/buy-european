@@ -1,6 +1,6 @@
-import { Tabs } from 'expo-router';
-import { StyleSheet } from 'react-native';
-import { ScanLine, Info, Chrome as Home, Database } from 'lucide-react-native';
+import { Tabs } from "expo-router";
+import { StyleSheet } from "react-native";
+import { ScanLine, Info, Chrome as Home, Database, LoaderPinwheelIcon, Rabbit } from "lucide-react-native";
 
 export default function TabLayout() {
   return (
@@ -13,15 +13,8 @@ export default function TabLayout() {
         headerStyle: styles.header,
         headerTintColor: '#FFFFFF',
         headerTitleStyle: styles.headerTitle,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
-          headerTitle: 'Buy European',
-        }}
-      />
+      }}
+    >
       <Tabs.Screen
         name="scan"
         options={{
@@ -31,19 +24,19 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="database"
+        name="about"
         options={{
-          title: 'Database',
-          tabBarIcon: ({ color, size }) => <Database size={size} color={color} />,
-          headerTitle: 'Product Database',
+          title: "About",
+          tabBarIcon: ({ color, size }) => <Info size={size} color={color} />,
+          headerTitle: "About Buy European",
         }}
       />
       <Tabs.Screen
-        name="about"
+        name="test"
         options={{
-          title: 'About',
-          tabBarIcon: ({ color, size }) => <Info size={size} color={color} />,
-          headerTitle: 'About Buy European',
+          title: "Test",
+          tabBarIcon: ({ color, size }) => <Rabbit size={size} color={color} />,
+          headerTitle: "Buy European",
         }}
       />
     </Tabs>

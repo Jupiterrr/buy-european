@@ -78,3 +78,15 @@ async function getProduct(code: string): Promise<ProductResponse> {
 }
 
 getProduct("4029764001906").then((it) => console.log(JSON.stringify(it, null, 2)));
+
+
+// origins_of_ingredients
+// "origins": "Duitsland",
+// "origins_hierarchy": ["en:germany"],
+// "origins_lc": "nl",
+// "origins_tags": ["en:germany"],
+// packaging_lc
+// "product_name": "Club-Mate Zero",
+// "product_name_de": "Chargement…",
+// "product_name_en": "",
+// "product_name_fr": "Club-Mate Zero",
