@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { companiesDatabase } from '../../components/database';
 import { useFocusEffect } from '@react-navigation/native';
+import { eanPrefixes } from './ean_prefix';
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -11,6 +12,8 @@ export default function ScanScreen() {
   const [scanned, setScanned] = useState(false);
   const [loading, setLoading] = useState(false);
   const [product, setProduct] = useState<ProductResponse | null>(null);
+  const [origin, setOrigin] = useState<string | null>(null);
+  const [country, setCountry] = useState<string | null>(null);
 
   // set product to null when open the page again
   useFocusEffect(
@@ -49,15 +52,38 @@ export default function ScanScreen() {
     const url = `https://world.openfoodfacts.org/api/v3/product/${encodeURIComponent(data)}.json`;
     const response = await fetch(url);
     const product = await response.json();
+    getCountryFromEAN(data);
   
     if (product.result.status === "failure") {
       throw new Error(product.result.name, { cause: product.result.code });
     }
 
-    setProduct(product);
-    setScanned(true);
+    // only shows details if product is found
+    if (product.result.id == "product_found") {
+      setProduct(product);
+      setScanned(true);
+    }
+    
     setLoading(false);
   };
+
+  function getCountryFromEAN(ean: string) {
+    if (!ean || ean.length < 3) {
+        return { country: "Unknown", origin: "Unknown" };
+    }
+    
+    const prefix = ean.substring(0, 3);
+    for (const entry of eanPrefixes) {
+        for (const range of entry.range) {
+            if (prefix >= range[0] && prefix <= range[range.length - 1]) {
+              setCountry(entry.country);
+              setOrigin(entry.origin);
+                return;
+            }
+        }
+    }
+  }
+
 
   // For web demo purposes, let's add a function to simulate scanning
   const simulateScan = (barcode: string) => {
@@ -119,9 +145,9 @@ export default function ScanScreen() {
         </>
       ) : (
         <View style={styles.resultContainer}>
-          {companiesDatabase.find((company) => company.name == product?.product.brands)?.origin === 'EU' ? (
+          {origin === 'EU' ? (
             <CheckCircle size={80} color="#4CD964" style={styles.resultIcon} />
-          ) : companiesDatabase.find((company) => company.name == product?.product.brands)?.origin === 'Non-EU' ? (
+          ) : origin === 'Non-EU' ? (
             <XCircle size={80} color="#FF3B30" style={styles.resultIcon} />
           ) : (
             <AlertCircle size={80} color="#FF9500" style={styles.resultIcon} />
@@ -129,11 +155,11 @@ export default function ScanScreen() {
           
           <Text style={styles.productName}>{product?.product.product_name}</Text>
           
-          {companiesDatabase.find((company) => company.name == product?.product.brands)?.origin === 'EU' ? (
+          {origin === 'EU' ? (
             <View style={[styles.originBadge, styles.euBadge]}>
               <Text style={styles.originText}>European Product</Text>
             </View>
-          ) : companiesDatabase.find((company) => company.name == product?.product.brands)?.origin === 'Non-EU' ? (
+          ) : origin === 'Non-EU' ? (
             <View style={[styles.originBadge, styles.nonEuBadge]}>
               <Text style={styles.originText}>Non-European Product</Text>
             </View>
@@ -145,10 +171,17 @@ export default function ScanScreen() {
           
           {product?.product.brands && (
             <Text style={styles.companyText}>
-              Company: {product.product.brands} ({companiesDatabase.find((company) => company.name == product?.product.brands)?.country})
+              Company: {product.product.brands} ({country})
             </Text>
           )}
           
+          {/** if the brand is empty but we still should show the country */  }
+          {!product?.product.brands && country && (
+            <Text style={styles.companyText}>
+              Origin: {country}
+            </Text>
+          )}
+         
           {product?.code && (
             <Text style={styles.barcodeText}>Barcode: {product.code}</Text>
           )}
