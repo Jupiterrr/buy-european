@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { companiesDatabase } from "../../components/database";
 import { useFocusEffect } from "@react-navigation/native";
-import { eanPrefixes } from "./ean_prefix";
+import { eanPrefixes } from "../../lib/ean_prefix";
 import { ScanResultScreen } from "../../components/scan-result/ScanResultScreen";
 import { useLocalSearchParams, useRouter } from "expo-router";
 

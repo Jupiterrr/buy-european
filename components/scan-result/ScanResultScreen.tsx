@@ -1,31 +1,22 @@
-import { StyleSheet, Text, View, Image, ScrollView, Dimensions } from "react-native";
-import { Flag, CircleCheck, CircleCheckBig, CircleX, BanIcon } from "lucide-react-native";
-import { exampleProduct } from "./data";
-import Animated, {
-  useSharedValue,
-  withTiming,
-  useAnimatedStyle,
-  Easing,
-  withSequence,
-  withDelay,
-} from "react-native-reanimated";
 import { useEffect } from "react";
+import { BanIcon, CircleCheckBig } from "lucide-react-native";
+import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
+import { Product } from "../../lib/lookup-types";
+import { capitalize } from "lodash";
 
-type Product = typeof exampleProduct;
-
-export function ScanResultScreen({ product }: { product?: Product; code?: string }) {
+export function ScanResultScreen({ product }: { product: Product; code?: string }) {
   const isEuProduct = false;
 
-  console.log("product", product);
+  console.log("product", JSON.stringify(product));
   // product = product;
-
-  if (product && product.result.id !== "product_found") {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>{product.result.name}</Text>
-      </View>
-    );
-  }
 
   function MadeInEuValue({ madeInEu }: { madeInEu: boolean }) {
     return madeInEu ? <Text>🇪🇺 Yes</Text> : <Text>⛔ No</Text>;
@@ -59,7 +50,7 @@ export function ScanResultScreen({ product }: { product?: Product; code?: string
       <ScrollView>
         <View style={styles.image2Container}>
           <Image
-            source={{ uri: product.product.image_front_url }}
+            source={{ uri: product.image_front_url }}
             style={styles.image2}
             resizeMode="contain"
           />
@@ -74,7 +65,7 @@ export function ScanResultScreen({ product }: { product?: Product; code?: string
             // textAlign: "center",
           }}
         >
-          {product.product.product_name}
+          {product.product_name}
         </Text>
 
         {isEuProduct ? (
@@ -97,7 +88,7 @@ export function ScanResultScreen({ product }: { product?: Product; code?: string
           </Text>
         </View> */}
 
-        {/* <Text style={styles.productName}>Brand: {product.product.brands}</Text> */}
+        {/* <Text style={styles.productName}>Brand: {product.brands}</Text> */}
 
         <InfoSectionDivider />
         <InfoSection label="Made in EU" value={<MadeInEuValue madeInEu={true} />} />
@@ -105,11 +96,15 @@ export function ScanResultScreen({ product }: { product?: Product; code?: string
         <InfoSection label="Made in EU" value={<MadeInEuValue madeInEu={false} />} />
         <InfoSectionDivider />
 
-        <InfoSection label="Company" value={product.product.allergens} />
+        <InfoSection label="Company" value={product.brands} />
+        {/* <InfoSectionDivider /> */}
+        {/* <InfoSection label="Parent company" value={product.brands} /> */}
         <InfoSectionDivider />
-        <InfoSection label="Parent company" value={product.product.brands} />
-        <InfoSectionDivider />
-        <InfoSection label="Location" value={product.product.brands} />
+        {/* <InfoSection label="Location" value={product.origins_tags} /> */}
+        <InfoSection
+          label="Location"
+          value={product.countries_tags.map((tag: string) => capitalize(tag.replace("en:", ""))).join(", ")}
+        />
         <InfoSectionDivider />
       </ScrollView>
     </View>
