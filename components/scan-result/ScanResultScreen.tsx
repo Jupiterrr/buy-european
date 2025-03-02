@@ -91,10 +91,11 @@ export function ScanResultScreen({ product }: { product: Product; code?: string 
         {/* <Text style={styles.productName}>Brand: {product.brands}</Text> */}
 
         <InfoSectionDivider />
-        <InfoSection label="Made in EU" value={<MadeInEuValue madeInEu={true} />} />
+        <InfoSection label="Made in Europe" value={<MadeInEuValue madeInEu={isEuProduct} />} />
         <InfoSectionDivider />
-        <InfoSection label="Made in EU" value={<MadeInEuValue madeInEu={false} />} />
+        <InfoSection label="Made by European company" value={<MadeInEuValue madeInEu={isEuProduct} />} />
         <InfoSectionDivider />
+
 
         <InfoSection label="Company" value={product.brands} />
         {/* <InfoSectionDivider /> */}
