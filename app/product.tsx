@@ -18,13 +18,13 @@ export default function ProductScreen() {
     if (error.type === "not-found") {
       return (
         <View style={styles.container}>
-          <Text style={{}}>Product not found</Text>
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>Product not found</Text>
         </View>
       );
     } else {
       return (
         <View style={styles.container}>
-          <Text style={{}}>Error</Text>
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>Error</Text>
         </View>
       );
     }
