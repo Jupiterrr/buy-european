@@ -63,21 +63,46 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
       return null;
     }
 
-    const prompt = `Where is the brand '${brand}' headquartered? Does it have a parent company? Where is the parent company headquartered? Return only a JSON array with the following format: ['company', 'headquarter', 'is headquarter in eu',  'parent-company', 'parent-company-headquarter', 'is parent-company-headquarter in eu'].`;
+    // const prompt = `Where is the brand '${brand}' headquartered? Does it have a parent company? Where is the parent company headquartered? Return a JSON array with the following format: ['company', 'headquarter', 'is headquarter in eu',  'parent-company', 'parent-company-headquarter', 'is parent-company-headquarter in eu'].`;
+    const prompt = `Provide information about the brand '${brand}' in a structured JSON array. Specifically, include:
+      1. The company's official name.
+      2. The company's headquarters location.
+      3. Whether the headquarters is in the European Union (true/false).
+      4. The parent company's official name (if applicable).
+      5. The parent company's headquarters location (if applicable).
+      6. Whether the parent company's headquarters is in the European Union (true/false).
+
+      Return the response strictly in a JSON array format as follows:
+      {
+        "company": "Company Name",
+        "headquarter": "Headquarters Location",
+        "is_headquarter_in_eu": true/false,
+        "parent_company": "Parent Company Name",
+        "parent_company_headquarter": "Parent Company Headquarters Location",
+        "is_parent_company_headquarter_in_eu": true/false
+      }`;
 
     const result = await model.generateContent(prompt);
     console.log(result.response.text());
-    const cleanedResult = result.response.text().replace("```json", "").replace("```", "");
+    // 1. Find the start of the JSON array.
+    const startIndex = result.response.text().indexOf('[');
+
+    // 2. Find the end of the JSON array.
+    const endIndex = result.response.text().indexOf(']', startIndex) + 1;
+
+    // 3. Extract the JSON string.
+    const cleanedResult = result.response.text().substring(startIndex, endIndex);
+
     const resultArray = JSON.parse(cleanedResult);
     console.log('resultArray', resultArray);
 
     return {
-      company: resultArray[0],
-      headquarter: resultArray[1],
-      euCompany: resultArray[2],
-      parentCompany: resultArray[3],
-      parentCompanyHeadquarter: resultArray[4],
-      euParentCompanyHeadquarter: resultArray[5],
+      company: resultArray[0]["company"],
+      headquarter: resultArray[0]["headquarter"],
+      euCompany: resultArray[0]["is_headquarter_in_eu"],
+      parentCompany: resultArray[0]["parent_company"],
+      parentCompanyHeadquarter: resultArray[0]["parent_company_headquarter"],
+      euParentCompanyHeadquarter: resultArray[0]["is_parent_company_headquarter_in_eu"],
     };
   }
 
@@ -202,11 +227,14 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
         <InfoSectionDivider />
 
         <InfoSection label="Company" value={product.brands} />
-        <InfoSectionDivider />
+        {companyInfo?.parentCompany && 
+        <InfoSectionDivider />}
+        {companyInfo?.parentCompany && 
         <InfoSection
           label="Parent-Company"
-          value={`${companyInfo?.parentCompany || "Unknown"}${companyInfo?.parentCompanyHeadquarter ? ` (${companyInfo.parentCompanyHeadquarter})` : ""}`}
+          value={`${companyInfo?.parentCompany || "None"}${companyInfo?.parentCompanyHeadquarter ? ` (${companyInfo.parentCompanyHeadquarter})` : ""}`}
         />
+        }
         {companyInfo?.euParentCompanyHeadquarter && <InfoSectionDivider />}
         {companyInfo?.euParentCompanyHeadquarter && 
         <InfoSection
