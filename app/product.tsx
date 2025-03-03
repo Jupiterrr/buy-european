@@ -1,13 +1,16 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { ScanResultScreen } from "../components/scan-result/ScanResultScreen";
 import { useProductInfo } from "../lib/lookup";
+import { useEffect } from "react";
+import { useState } from "react";
 
 export default function ProductScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const code: string = typeof params.code === "string" ? params.code : params.code?.[0];
   const { product, error, loading } = useProductInfo(code);
+  const showLoading = useTimer(500);
 
   if (!code) {
     router.dismissTo("/scan");
@@ -31,7 +34,22 @@ export default function ProductScreen() {
   }
 
   if (loading || !product) {
-    return <Text>loading...</Text>;
+    if (showLoading) {
+      return (
+        <View
+          style={{
+            height: "100%",
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      );
+    } else {
+      return null;
+    }
   }
 
   return <ScanResultScreen product={product} code={code} />;
@@ -44,3 +62,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+function useTimer(delay: number) {
+  const [isReady, setIsReady] = useState(false);
+  useEffect(() => {
+    setTimeout(() => setIsReady(true), delay);
+  }, [delay]);
+  return isReady;
+}
