@@ -34,6 +34,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="test"
         options={{
+          href: __DEV__ ? undefined : null,
           title: "Test",
           tabBarIcon: ({ color, size }) => <Rabbit size={size} color={color} />,
           headerTitle: "Buy European",
