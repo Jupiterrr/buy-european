@@ -1,0 +1,13 @@
+{
+    "build": {
+      "production": {
+        "ios": {
+          "distribution": "store"
+        },
+        "android": {
+        "image": "latest"
+      }
+      }
+    }
+  }
+  
