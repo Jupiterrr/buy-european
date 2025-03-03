@@ -17,18 +17,19 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
   function checkIsEuProduct(): boolean {
     // Check if code exists before trying to use it
     if (!code) return false;
-    
+
     const prefix = Number(code.substring(0, 3));
     for (const entry of eanPrefixes) {
       const range = entry.range;
-      if (Array.isArray(range)) { 
+      if (Array.isArray(range)) {
         const min = range[0];
         const max = range.length > 1 ? range[1] : range[0]; // Handle single-value ranges
 
-        if (prefix >= min && prefix <= max) { // Numeric comparison
-            return entry.origin == 'EU';
+        if (prefix >= min && prefix <= max) {
+          // Numeric comparison
+          return entry.origin == "EU";
         }
-    }
+      }
     }
 
     return false; // Replace with actual implementation
@@ -41,7 +42,17 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
   // product = product;
 
   function MadeInEuValue({ madeInEu }: { madeInEu: boolean }) {
-    return madeInEu ? <Text>🇪🇺 Yes</Text> : <Text>⛔ No</Text>;
+    return madeInEu ? (
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+        <Text style={{ fontSize: 18 }}>🇪🇺</Text>
+        <Text style={{ fontWeight: "bold" }}>Yes</Text>
+      </View>
+    ) : (
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+        <Text style={{ fontSize: 18 }}>⛔</Text>
+        <Text style={{ fontWeight: "bold" }}>No</Text>
+      </View>
+    );
   }
 
   // const opacity = useSharedValue(0.5);
@@ -82,7 +93,7 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
           style={{
             fontSize: 24,
             fontWeight: "bold",
-            marginBottom: 12,
+            marginBottom: 32,
             paddingHorizontal: 24,
             // textAlign: "center",
           }}
@@ -113,11 +124,18 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
         {/* <Text style={styles.productName}>Brand: {product.brands}</Text> */}
 
         <InfoSectionDivider />
-        <InfoSection label="Made in Europe" value={<MadeInEuValue madeInEu={isEuropeanProduct} />} />
+        <InfoSection
+          label="Made in Europe"
+          value={<MadeInEuValue madeInEu={isEuropeanProduct} />}
+          isBad={!isEuropeanProduct}
+        />
         <InfoSectionDivider />
-        <InfoSection label="Made by European company" value={<MadeInEuValue madeInEu={isEuropeanProduct} />} />
+        <InfoSection
+          label="Made by European company"
+          value={<MadeInEuValue madeInEu={isEuropeanProduct} />}
+          isBad={!isEuropeanProduct}
+        />
         <InfoSectionDivider />
-
 
         <InfoSection label="Company" value={product.brands} />
         {/* <InfoSectionDivider /> */}
@@ -126,7 +144,9 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
         {/* <InfoSection label="Location" value={product.origins_tags} /> */}
         <InfoSection
           label="Location"
-          value={product.countries_tags.map((tag: string) => capitalize(tag.replace("en:", ""))).join(", ")}
+          value={product.countries_tags
+            .map((tag: string) => capitalize(tag.replace("en:", "")))
+            .join(", ")}
         />
         <InfoSectionDivider />
       </ScrollView>
@@ -357,14 +377,16 @@ function InfoSection({
   label,
   value,
   description,
+  isBad,
 }: {
   label: string;
   value: string | React.ReactNode;
   description?: string;
+  isBad?: boolean;
 }) {
   return (
-    <View style={{ padding: 12, flexDirection: "column", gap: 4, paddingHorizontal: 24 }}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+    <View style={{ padding: 24, flexDirection: "column", gap: 4, paddingHorizontal: 24, backgroundColor: isBad ? "#fecaca" : undefined }}>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
         <Text style={{ fontSize: 14, fontWeight: "bold" }}>{label}</Text>
         <Text style={{ fontSize: 14, fontWeight: "bold" }}>{value}</Text>
       </View>
@@ -374,5 +396,5 @@ function InfoSection({
 }
 
 function InfoSectionDivider() {
-  return <View style={{ height: 1, backgroundColor: "#e2e8f0", marginVertical: 12 }} />;
+  return <View style={{ height: 1, backgroundColor: "#e2e8f0" }} />;
 }
