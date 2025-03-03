@@ -1,6 +1,6 @@
-// import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BanIcon, CircleCheckBig } from "lucide-react-native";
-import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Dimensions, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 // import Animated, {
 //   Easing,
 //   useAnimatedStyle,
@@ -11,49 +11,96 @@ import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from "react-nat
 // } from "react-native-reanimated";
 import { Product } from "../../lib/lookup-types";
 import { capitalize } from "lodash";
-import { eanPrefixes } from "@/lib/ean_prefix";
+
 
 export function ScanResultScreen({ product, code }: { product: Product; code?: string }) {
-  function checkIsEuProduct(): boolean {
-    // Check if code exists before trying to use it
-    if (!code) return false;
+  const { GoogleGenerativeAI } = require("@google/generative-ai");
+  const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GOOGLE_API_KEY);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const prefix = Number(code.substring(0, 3));
-    for (const entry of eanPrefixes) {
-      const range = entry.range;
-      if (Array.isArray(range)) {
-        const min = range[0];
-        const max = range.length > 1 ? range[1] : range[0]; // Handle single-value ranges
+  const [companyInfo, setCompanyInfo] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [isEuropeanProduct, setIsEuropeanProduct] = useState(null);
 
-        if (prefix >= min && prefix <= max) {
-          // Numeric comparison
-          return entry.origin == "EU";
-        }
+  useEffect(() => {
+    async function fetchCompanyInfo() {
+      setLoading(true);
+      const info = await GetOriginWithGemini(product.brands);
+      console.log('info', info);
+      if (info) {
+        setCompanyInfo(info);
+        const isEU = info['euCompany'];
+        setIsEuropeanProduct(isEU);
       }
+      
+      setLoading(false);
     }
 
-    return false; // Replace with actual implementation
+    fetchCompanyInfo();
+  }, [product.brands]);  
+
+  // async function GetOriginFromLlm()  {
+  //     console.log('GetOriginFromLlm');
+  //     const apiKey = "API_KEY";
+  
+  //     const client = new Mistral({apiKey: apiKey});
+  //     console.log('client ', client);
+  
+  //     const chatResponse = await client.chat.complete({
+  //         model: "mistral-large-latest",
+  //         messages: [{
+  //           "role": "user",
+  //           "content": "Where is the brand 'Nestle' headquartered? Does it have a parent company? Where is the parent company headquartered? Return only a JSON array with the following format: ['company', 'headquarter', 'is headquarter in eu',  'parent-company', 'parent-company-headquarter', 'is parent-company-headquarter in eu']."
+  //         }]
+  //     });
+  //     console.log('chatResponse', chatResponse);
+  
+  //     console.log('Chat:', chatResponse.choices[0].message.content);
+  // }
+
+  async function GetOriginWithGemini(brand: string | null) {
+    if (!brand) {
+      return null;
+    }
+
+    const prompt = `Where is the brand '${brand}' headquartered? Does it have a parent company? Where is the parent company headquartered? Return only a JSON array with the following format: ['company', 'headquarter', 'is headquarter in eu',  'parent-company', 'parent-company-headquarter', 'is parent-company-headquarter in eu'].`;
+
+    const result = await model.generateContent(prompt);
+    console.log(result.response.text());
+    const cleanedResult = result.response.text().replace("```json", "").replace("```", "");
+    const resultArray = JSON.parse(cleanedResult);
+    console.log('resultArray', resultArray);
+
+    return {
+      company: resultArray[0],
+      headquarter: resultArray[1],
+      euCompany: resultArray[2],
+      parentCompany: resultArray[3],
+      parentCompanyHeadquarter: resultArray[4],
+      euParentCompanyHeadquarter: resultArray[5],
+    };
   }
 
-  // Call the function to determine if it's an EU product
-  const isEuropeanProduct = checkIsEuProduct();
-
-  console.log("product", JSON.stringify(product));
-  // product = product;
-
-  function MadeInEuValue({ madeInEu }: { madeInEu: boolean }) {
+  function MadeInEuValue({ madeInEu, origin }: { madeInEu: boolean | null; origin: string }) {
+    if (madeInEu === null) {
+      return <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+        <Text style={{ fontSize: 18 }}>❓</Text>
+        <Text style={{ fontWeight: "bold" }}>Unknown</Text>
+      </View>
+    }
     return madeInEu ? (
       <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
         <Text style={{ fontSize: 18 }}>🇪🇺</Text>
-        <Text style={{ fontWeight: "bold" }}>Yes</Text>
+        <Text style={{ fontWeight: "bold" }}>Yes ({origin})</Text>
       </View>
     ) : (
       <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
         <Text style={{ fontSize: 18 }}>⛔</Text>
-        <Text style={{ fontWeight: "bold" }}>No</Text>
+        <Text style={{ fontWeight: "bold" }}>No ({origin})</Text>
       </View>
     );
   }
+  
 
   // const opacity = useSharedValue(0.5);
 
@@ -69,6 +116,20 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
   //     opacity: opacity.value,
   //   };
   // });
+
+  if (loading) {
+    return <View
+      style={{
+        height: "100%",
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <ActivityIndicator size="large" color="#0000ff" />
+    </View>;
+  }
+
 
   return (
     <View style={styles.container}>
@@ -101,6 +162,7 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
           {product.product_name}
         </Text>
 
+        {/** TODO: a third version, when we do not know */}
         {/* {isEuropeanProduct ? (
           <View style={[styles.euContainer, { backgroundColor: "green" }]}>
             <CircleCheckBig size={24} color="#FFCC00" />
@@ -123,21 +185,35 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
 
         {/* <Text style={styles.productName}>Brand: {product.brands}</Text> */}
 
+        {/* <InfoSectionDivider />
+        <InfoSection label="Made in Europe" value={<MadeInEuValue madeInEu={isEuropeanProduct} origin={companyInfo?['headquarter']} />} /> */}
         <InfoSectionDivider />
         <InfoSection
           label="Made in Europe"
-          value={<MadeInEuValue madeInEu={isEuropeanProduct} />}
+          value={<MadeInEuValue madeInEu={isEuropeanProduct} origin={companyInfo?.headquarter || "Unknown"} />}
           isBad={!isEuropeanProduct}
         />
         <InfoSectionDivider />
         <InfoSection
           label="Made by European company"
-          value={<MadeInEuValue madeInEu={isEuropeanProduct} />}
+          value={<MadeInEuValue madeInEu={isEuropeanProduct} origin={companyInfo?.headquarter || "Unknown"} />}
           isBad={!isEuropeanProduct}
         />
         <InfoSectionDivider />
 
         <InfoSection label="Company" value={product.brands} />
+        <InfoSectionDivider />
+        <InfoSection
+          label="Parent-Company"
+          value={`${companyInfo?.parentCompany || "Unknown"}${companyInfo?.parentCompanyHeadquarter ? ` (${companyInfo.parentCompanyHeadquarter})` : ""}`}
+        />
+        {companyInfo?.euParentCompanyHeadquarter && <InfoSectionDivider />}
+        {companyInfo?.euParentCompanyHeadquarter && 
+        <InfoSection
+          label="Parent Company from Europe"
+          value={<MadeInEuValue madeInEu={companyInfo?.euParentCompanyHeadquarter ?? null} origin={companyInfo?.parentCompanyHeadquarter || "Unknown"} />}
+        />}
+
         {/* <InfoSectionDivider /> */}
         {/* <InfoSection label="Parent company" value={product.brands} /> */}
         <InfoSectionDivider />
@@ -383,17 +459,20 @@ function InfoSection({
   value: string | React.ReactNode;
   description?: string;
   isBad?: boolean;
-}) {
+}) {  
   return (
     <View style={{ padding: 24, flexDirection: "column", gap: 4, paddingHorizontal: 24, backgroundColor: isBad ? "#fecaca" : undefined }}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-        <Text style={{ fontSize: 14, fontWeight: "bold" }}>{label}</Text>
-        <Text style={{ fontSize: 14, fontWeight: "bold" }}>{value}</Text>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", flexWrap: "wrap" }}>
+        <Text style={{ fontSize: 14, fontWeight: "bold", flex: 1 }}>{label}</Text>
+        <Text style={{ fontSize: 14, fontWeight: "bold", flex: 1, flexWrap: "wrap" }}>
+          {value}
+        </Text>
       </View>
       {description && <Text style={{ fontSize: 14, color: "#666666" }}>{description}</Text>}
     </View>
   );
 }
+
 
 function InfoSectionDivider() {
   return <View style={{ height: 1, backgroundColor: "#e2e8f0" }} />;
