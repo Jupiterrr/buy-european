@@ -11,9 +11,31 @@ import Animated, {
 } from "react-native-reanimated";
 import { Product } from "../../lib/lookup-types";
 import { capitalize } from "lodash";
+import { eanPrefixes } from "@/lib/ean_prefix";
 
-export function ScanResultScreen({ product }: { product: Product; code?: string }) {
-  const isEuProduct = false;
+export function ScanResultScreen({ product, code }: { product: Product; code?: string }) {
+  function checkIsEuProduct(): boolean {
+    // Check if code exists before trying to use it
+    if (!code) return false;
+    
+    const prefix = Number(code.substring(0, 3));
+    for (const entry of eanPrefixes) {
+      const range = entry.range;
+      if (Array.isArray(range)) { 
+        const min = range[0];
+        const max = range.length > 1 ? range[1] : range[0]; // Handle single-value ranges
+
+        if (prefix >= min && prefix <= max) { // Numeric comparison
+            return entry.origin == 'EU';
+        }
+    }
+    }
+
+    return false; // Replace with actual implementation
+  }
+
+  // Call the function to determine if it's an EU product
+  const isEuropeanProduct = checkIsEuProduct();
 
   console.log("product", JSON.stringify(product));
   // product = product;
@@ -42,7 +64,7 @@ export function ScanResultScreen({ product }: { product: Product; code?: string 
       <Animated.View
         style={[
           styles.statusOverlay,
-          isEuProduct ? styles.statusOverlayOk : styles.statusOverlayError,
+          isEuropeanProduct ? styles.statusOverlayOk : styles.statusOverlayError,
           overlayAnimatedStyle,
         ]}
       ></Animated.View>
@@ -68,7 +90,7 @@ export function ScanResultScreen({ product }: { product: Product; code?: string 
           {product.product_name}
         </Text>
 
-        {isEuProduct ? (
+        {isEuropeanProduct ? (
           <View style={[styles.euContainer, { backgroundColor: "green" }]}>
             <CircleCheckBig size={24} color="#FFCC00" />
             <Text style={[styles.euText, { color: "white" }]}>This is a European product.</Text>
@@ -91,9 +113,9 @@ export function ScanResultScreen({ product }: { product: Product; code?: string 
         {/* <Text style={styles.productName}>Brand: {product.brands}</Text> */}
 
         <InfoSectionDivider />
-        <InfoSection label="Made in Europe" value={<MadeInEuValue madeInEu={isEuProduct} />} />
+        <InfoSection label="Made in Europe" value={<MadeInEuValue madeInEu={isEuropeanProduct} />} />
         <InfoSectionDivider />
-        <InfoSection label="Made by European company" value={<MadeInEuValue madeInEu={isEuProduct} />} />
+        <InfoSection label="Made by European company" value={<MadeInEuValue madeInEu={isEuropeanProduct} />} />
         <InfoSectionDivider />
 
 

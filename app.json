@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.carsam.buyeuropean",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "web": {
       "bundler": "metro",
@@ -27,7 +31,31 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
         }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0F2B8E",
+          "image": "./assets/images/icon.png",
+          "dark": {
+            "image": "./assets/images/icon.png",
+            "backgroundColor": "#0F2B8E"
+          },
+          "imageWidth": 200
+        }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1f99eac4-56f5-4cae-8ed2-819aa75fe7ff"
+      }
+    },
+    "android": {
+      "package": "com.carsam.buyeuropean",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    }
   }
 }
