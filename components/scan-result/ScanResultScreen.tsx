@@ -1,14 +1,14 @@
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import { BanIcon, CircleCheckBig } from "lucide-react-native";
 import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from "react-native";
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withSequence,
-  withTiming,
-} from "react-native-reanimated";
+// import Animated, {
+//   Easing,
+//   useAnimatedStyle,
+//   useSharedValue,
+//   withDelay,
+//   withSequence,
+//   withTiming,
+// } from "react-native-reanimated";
 import { Product } from "../../lib/lookup-types";
 import { capitalize } from "lodash";
 import { eanPrefixes } from "@/lib/ean_prefix";
@@ -44,30 +44,30 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
     return madeInEu ? <Text>🇪🇺 Yes</Text> : <Text>⛔ No</Text>;
   }
 
-  const opacity = useSharedValue(0.5);
+  // const opacity = useSharedValue(0.5);
 
-  useEffect(() => {
-    opacity.value = withSequence(
-      withDelay(50, withTiming(1, { duration: 100, easing: Easing.linear })),
-      withDelay(500, withTiming(0, { duration: 500, easing: Easing.linear }))
-    );
-  }, []);
+  // useEffect(() => {
+  //   opacity.value = withSequence(
+  //     withDelay(50, withTiming(1, { duration: 100, easing: Easing.linear })),
+  //     withDelay(500, withTiming(0, { duration: 500, easing: Easing.linear }))
+  //   );
+  // }, []);
 
-  const overlayAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: opacity.value,
-    };
-  });
+  // const overlayAnimatedStyle = useAnimatedStyle(() => {
+  //   return {
+  //     opacity: opacity.value,
+  //   };
+  // });
 
   return (
     <View style={styles.container}>
-      <Animated.View
+      {/* <Animated.View
         style={[
           styles.statusOverlay,
           isEuropeanProduct ? styles.statusOverlayOk : styles.statusOverlayError,
           overlayAnimatedStyle,
         ]}
-      ></Animated.View>
+      ></Animated.View> */}
 
       <ScrollView>
         <View style={styles.image2Container}>
@@ -90,7 +90,7 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
           {product.product_name}
         </Text>
 
-        {isEuropeanProduct ? (
+        {/* {isEuropeanProduct ? (
           <View style={[styles.euContainer, { backgroundColor: "green" }]}>
             <CircleCheckBig size={24} color="#FFCC00" />
             <Text style={[styles.euText, { color: "white" }]}>This is a European product.</Text>
@@ -100,7 +100,7 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
             <BanIcon size={24} color="red" />
             <Text style={[styles.euText, {}]}>This is a non-European product.</Text>
           </View>
-        )}
+        )} */}
 
         {/* <View style={styles.euContainer}>
           <Flag size={24} color="#0052B4" />
