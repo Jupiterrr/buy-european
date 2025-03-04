@@ -1,9 +1,10 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { ScanResultScreen } from "../components/scan-result/ScanResultScreen";
-import { useProductInfo } from "../lib/lookup";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import {
+  ActivityIndicator, Button, StyleSheet, Text, View,
+} from 'react-native';
+import { ScanResultScreen } from '../components/scan-result/ScanResultScreen';
+import { useProductInfo } from '../lib/lookup';
 
 export default function ProductScreen() {
   const router = useRouter();
@@ -22,6 +23,10 @@ export default function ProductScreen() {
       return (
         <View style={styles.container}>
           <Text style={{ fontSize: 20, fontWeight: "bold" }}>Product not found</Text>
+          <Text style={{ fontSize: 16, color: "gray" }}>{code}</Text>
+          <View style={{ marginTop: 24 }}>
+            <Button title="Go back" onPress={() => router.dismissTo("/scan")} />
+          </View>
         </View>
       );
     } else {
