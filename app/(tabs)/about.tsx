@@ -82,7 +82,7 @@ export default function AboutScreen() {
         </Text>
         <TouchableOpacity 
           style={styles.contactButton}
-          onPress={() => Linking.openURL('mailto:contact@buyeuropean.eu')}
+          onPress={() => Linking.openURL('mailto:buy-european@googlegroups.com')}
         >
           <Mail size={20} color="#FFFFFF" style={styles.contactIcon} />
           <Text style={styles.contactButtonText}>Email Us</Text>
@@ -93,7 +93,7 @@ export default function AboutScreen() {
         <Text style={styles.footerText}>Buy European © 2025</Text>
         <TouchableOpacity 
           style={styles.privacyLink}
-          onPress={() => Linking.openURL('https://example.com/privacy')}
+          onPress={() => Linking.openURL('https://drive.google.com/file/d/1qqlubS33ZvgFQXVepW4A8g1a0u0Cgqw5/view?usp=sharing')}
         >
           <Text style={styles.privacyLinkText}>Privacy Policy</Text>
           <ExternalLink size={16} color="#0052B4" style={styles.linkIcon} />

@@ -52,6 +52,7 @@
     },
     "android": {
       "package": "com.carsam.buyeuropean",
+      "versionCode": 3,
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"

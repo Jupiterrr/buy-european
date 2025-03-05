@@ -125,7 +125,7 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
 
         <InfoSection
           label="Company"
-          description={
+          value={
             <CompanyDescription
               name={companyInfo?.company?.name || "Unknown"}
               location={companyInfo?.company?.country || "Unknown"}
@@ -145,9 +145,9 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
 
             <InfoSection
               label="Parent Company"
-              description={
+              value={
                 <CompanyDescription
-                  name={companyInfo.parentCompany.name}
+                  name={companyInfo.parentCompany.name + "und noch viel länger"}
                   location={companyInfo.parentCompany.country}
                 />
               }
@@ -433,7 +433,7 @@ function InfoSection({
         }}
       >
         <Text style={{ fontSize: 14, fontWeight: "bold", flex: 1 }}>{label}</Text>
-        <Text style={{ fontSize: 14, fontWeight: "bold", flexWrap: "wrap" }}>{value}</Text>
+        <Text style={{ fontSize: 14, fontWeight: "bold", flex: 1 }}>{value}</Text>
       </View>
       {description && <Text style={{ fontSize: 14, color: "#666666" }}>{description}</Text>}
     </View>
