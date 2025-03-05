@@ -1,10 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import {
-  ActivityIndicator, Button, StyleSheet, Text, View,
-} from 'react-native';
-import { ScanResultScreen } from '../components/scan-result/ScanResultScreen';
-import { useProductInfo } from '../lib/lookup';
+import { useEffect, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
+import { ScanResultScreen } from "../components/scan-result/ScanResultScreen";
+import { useProductInfo } from "../lib/useProductInfo";
 
 export default function ProductScreen() {
   const router = useRouter();
@@ -19,7 +17,7 @@ export default function ProductScreen() {
   }
 
   if (error) {
-    if (error.type === "not-found") {
+    if (error.code === "not_found") {
       return (
         <View style={styles.container}>
           <Text style={{ fontSize: 20, fontWeight: "bold" }}>Product not found</Text>
@@ -57,7 +55,7 @@ export default function ProductScreen() {
     }
   }
 
-  return <ScanResultScreen product={product} code={code} />;
+  return <ScanResultScreen product={product} />;
 }
 
 const styles = StyleSheet.create({

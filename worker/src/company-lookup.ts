@@ -1,18 +1,4 @@
-import { useEffect, useState } from 'react';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
-
-interface CompanyInfoResponse {
-	company: {
-		name: string;
-		country: string;
-		isEu: boolean;
-	} | null;
-	parentCompany: {
-		name: string;
-		country: string;
-		isEu: boolean;
-	} | null;
-}
 
 export async function lookupCompany(env: Env, brand: string) {
 	const genAI = new GoogleGenerativeAI(env.GOOGLE_API_KEY);
@@ -83,7 +69,6 @@ export async function lookupCompany(env: Env, brand: string) {
 	const result = await model.generateContent(prompt);
 	const rawJson = result.response.text();
 	console.log('rawJson', rawJson);
-	const companyInfo: CompanyInfoResponse = JSON.parse(rawJson);
+	const companyInfo: CompanyInfo = JSON.parse(rawJson);
 	return companyInfo;
 }
-

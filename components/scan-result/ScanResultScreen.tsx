@@ -1,5 +1,4 @@
 import React from "react";
-import { BanIcon, CircleCheckBig } from "lucide-react-native";
 import {
   ActivityIndicator,
   Dimensions,
@@ -9,59 +8,14 @@ import {
   Text,
   View,
 } from "react-native";
-import { Product } from "../../lib/lookup-types";
-import { capitalize } from "lodash";
-import { useCompanyInfo } from "../../lib/company-lookup";
+import { Product } from "../../lib/useProductInfo";
 
-export function ScanResultScreen({ product, code }: { product: Product; code?: string }) {
-  const { companyInfo, loading } = useCompanyInfo(product.brands);
-
-  function MadeInEuValue({ madeInEu, origin }: { madeInEu: boolean | null; origin?: string }) {
-    if (madeInEu === null) {
-      return (
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-          <Text style={{ fontSize: 18 }}>❓</Text>
-          <Text style={{ fontWeight: "bold" }}>Unknown</Text>
-        </View>
-      );
-    }
-    return madeInEu ? (
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-        <Text style={{ fontSize: 18 }}>🇪🇺</Text>
-        <Text style={{ fontWeight: "bold" }}>Yes</Text>
-      </View>
-    ) : (
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-        <Text style={{ fontSize: 18 }}>⛔</Text>
-        <Text style={{ fontWeight: "bold" }}>No</Text>
-      </View>
-    );
-  }
-
-  if (loading) {
-    return (
-      <View
-        style={{
-          height: "100%",
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-
+export function ScanResultScreen({ product }: { product: Product }) {
   return (
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.image2Container}>
-          <Image
-            source={{ uri: product.image_front_url }}
-            style={styles.image2}
-            resizeMode="contain"
-          />
+          <Image source={{ uri: product.imageUrl }} style={styles.image2} resizeMode="contain" />
         </View>
 
         <Text
@@ -73,7 +27,7 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
             // textAlign: "center",
           }}
         >
-          {product.product_name}
+          {product.name}
         </Text>
 
         {/** TODO: a third version, when we do not know */}
@@ -111,14 +65,8 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
         <InfoSectionDivider />
         <InfoSection
           label="Made by European company"
-          value={
-            companyInfo?.company ? (
-              <MadeInEuValue madeInEu={!!companyInfo?.company?.isEu} />
-            ) : (
-              "Unknown"
-            )
-          }
-          isBad={!companyInfo?.company?.isEu}
+          value={<MadeInEuValue madeInEu={product.companyOrigin} />}
+          isBad={product.companyOrigin !== "eu"}
           // description={`Made by ${companyInfo?.company || "Unknown"}`}
         />
         <InfoSectionDivider />
@@ -127,8 +75,8 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
           label="Company"
           value={
             <CompanyDescription
-              name={companyInfo?.company?.name || "Unknown"}
-              location={companyInfo?.company?.country || "Unknown"}
+              name={product.company?.name || "Unknown"}
+              location={product.company?.country || "Unknown"}
             />
           }
         />
@@ -139,7 +87,7 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
             value={`${companyInfo?.parentCompany || "None"}${companyInfo?.parentCompanyHeadquarter ? ` (${companyInfo.parentCompanyHeadquarter})` : ""}`}
           />
         )} */}
-        {companyInfo?.parentCompany && (
+        {product.parentCompany && (
           <React.Fragment>
             <InfoSectionDivider />
 
@@ -147,8 +95,8 @@ export function ScanResultScreen({ product, code }: { product: Product; code?: s
               label="Parent Company"
               value={
                 <CompanyDescription
-                  name={companyInfo.parentCompany.name + "und noch viel länger"}
-                  location={companyInfo.parentCompany.country}
+                  name={product.parentCompany.name}
+                  location={product.parentCompany.country}
                 />
               }
             />
@@ -427,13 +375,13 @@ function InfoSection({
       <View
         style={{
           flexDirection: "row",
-          justifyContent: "space-between",
           flexWrap: "wrap",
           alignItems: "center",
         }}
       >
         <Text style={{ fontSize: 14, fontWeight: "bold", flex: 1 }}>{label}</Text>
-        <Text style={{ fontSize: 14, fontWeight: "bold", flex: 1 }}>{value}</Text>
+
+        <Text style={{ fontSize: 14, fontWeight: "bold", }}>{value}</Text>
       </View>
       {description && <Text style={{ fontSize: 14, color: "#666666" }}>{description}</Text>}
     </View>
@@ -446,9 +394,31 @@ function InfoSectionDivider() {
 
 function CompanyDescription({ name, location }: { name: string; location: string }) {
   return (
-    <View style={{ flexDirection: "column", gap: 2 }}>
+    <View style={{ flexDirection: "column", gap: 2, alignItems: "flex-end" }}>
       <Text style={{ fontWeight: "bold" }}>{name}</Text>
       <Text style={{ fontSize: 12, color: "#888888" }}>{location}</Text>
+    </View>
+  );
+}
+
+function MadeInEuValue({ madeInEu }: { madeInEu: Product["companyOrigin"] }) {
+  if (madeInEu === "unknown") {
+    return (
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+        <Text style={{ fontSize: 18 }}>❓</Text>
+        <Text style={{ fontWeight: "bold" }}>Unknown</Text>
+      </View>
+    );
+  }
+  return madeInEu === "eu" ? (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+      <Text style={{ fontSize: 18 }}>🇪🇺</Text>
+      <Text style={{ fontWeight: "bold" }}>Yes</Text>
+    </View>
+  ) : (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+      <Text style={{ fontSize: 18 }}>⛔</Text>
+      <Text style={{ fontWeight: "bold" }}>No</Text>
     </View>
   );
 }
