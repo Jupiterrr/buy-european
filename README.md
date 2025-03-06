@@ -25,6 +25,10 @@ You also need an API key for the Gemini API. You can get one by creating an acco
 
 Run `cp template.env .env` and add your API key to the `.env` file.
 
+## Contributing
+
+We welcome contributions to the app. Please feel free to submit a PR or open an issue.
+
 ## Achnowledgements
 
 - This app is inspired by [Maple Scan](https://maplescan.ca/) an app for finding Canadian products
