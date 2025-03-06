@@ -7,28 +7,11 @@ import { useFocusEffect } from "@react-navigation/native";
 import { eanPrefixes } from "../../lib/ean_prefix";
 import { ScanResultScreen } from "../../components/scan-result/ScanResultScreen";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import CustomButton from "@/components/Button";
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const router = useRouter();
-
-  // const [scanned, setScanned] = useState(false);
-  // const [loading, setLoading] = useState(false);
-  // const [product, setProduct] = useState<ProductResponse | null>(null);
-  // const [origin, setOrigin] = useState<string | null>(null);
-  // const [country, setCountry] = useState<string | null>(null);
-
-  // const params = useLocalSearchParams();
-  // const code: string = typeof params.code === "string" ? params.code : params.code?.[0];
-
-  // set product to null when open the page again
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     setProduct(null);
-  //     setLoading(false);
-  //     // setScanned(false);
-  //   }, [])
-  // );
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -38,9 +21,24 @@ export default function ScanScreen() {
   if (!permission.granted) {
     // Camera permissions are not granted yet.
     return (
-      <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
+      <View
+        style={{
+          display: "flex",
+          height: "100%",
+          width: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <View style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <Text style={{ textAlign: "center", fontSize: 16, fontWeight: "bold" }}>
+            Camera permission
+          </Text>
+          <Text style={{ textAlign: "center", fontSize: 14 }}>
+            Grant access to the camera to scan your product
+          </Text>
+          <CustomButton onPress={requestPermission} title="Allow camera access" theme="primary" />
+        </View>
       </View>
     );
   }
@@ -123,10 +121,6 @@ export default function ScanScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F5F5F5",
-  },
   scannerContainer: {
     flex: 1,
     position: "relative",
@@ -148,10 +142,7 @@ const styles = StyleSheet.create({
   scanner: {
     ...StyleSheet.absoluteFillObject,
   },
-  message: {
-    textAlign: "center",
-    paddingBottom: 10,
-  },
+
   overlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
