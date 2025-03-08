@@ -121,6 +121,10 @@ export default function ScanScreen() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F5F5F5",
+  },
   scannerContainer: {
     flex: 1,
     position: "relative",
