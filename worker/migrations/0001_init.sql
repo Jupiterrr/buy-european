@@ -1,0 +1,18 @@
+-- Migration number: 0001 	 2025-03-13T19:56:30.970Z
+CREATE TABLE IF NOT EXISTS company_locations (
+	off_company_tag TEXT NOT NULL PRIMARY KEY,
+	company_name TEXT NOT NULL,
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	country_code TEXT NOT NULL,
+	source TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS change_requests (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	request_type TEXT NOT NULL,
+	data TEXT NOT NULL,
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	ip_address TEXT NOT NULL,
+	status TEXT NOT NULL,
+	note TEXT
+);

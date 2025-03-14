@@ -1,8 +1,13 @@
 import { Hono } from 'hono';
-import { lookupCompany } from './company-lookup';
-import { Platform } from 'react-native';
-import Constants from 'expo-constants';
+import * as countries from 'i18n-iso-countries';
+import countryDataEn from 'i18n-iso-countries/langs/en.json';
+import { lookupCompanyV2 } from './company-lookup';
+import { getCompanyOrigin } from './isEuropeanCountry';
+
+countries.registerLocale(countryDataEn);
+
 const app = new Hono<{ Bindings: Env }>();
+export default app;
 
 const cacheVersion = 1;
 
@@ -20,22 +25,26 @@ app.get('/product', async (c) => {
 			return c.json(productInfo, 400);
 		}
 
-		const companyInfo = await getCompany(c.env, productInfo.brands);
+		const companyInfo = await lookupCompanyV2(c.env, { name: productInfo.brands, tag: productInfo.brands_tags[0] });
 
-		let companyOrigin: 'unknown' | 'eu' | 'non-eu' = 'unknown';
-		if (companyInfo.company) {
-			companyOrigin = companyInfo.company.isEu ? 'eu' : 'non-eu';
-			if (companyInfo.parentCompany && companyInfo.parentCompany.isEu === false) {
-				companyOrigin = 'non-eu';
-			}
-		}
+		const companyOrigin = getCompanyOrigin(companyInfo.company.isoCountryCode, companyInfo.parentCompany?.isoCountryCode);
 
 		return c.json({
 			data: {
 				code: code,
 				name: productInfo.product_name,
 				imageUrl: productInfo.image_front_url,
-				...companyInfo,
+				company: {
+					name: companyInfo.company.name,
+					country: (companyInfo.company.isoCountryCode && countries.getName(companyInfo.company.isoCountryCode, 'en')) ?? null,
+				},
+				parentCompany: companyInfo.parentCompany
+					? {
+							name: companyInfo.parentCompany.name,
+							country:
+								(companyInfo.parentCompany.isoCountryCode && countries.getName(companyInfo.parentCompany.isoCountryCode, 'en')) ?? null,
+					  }
+					: null,
 				companyOrigin,
 			},
 		} satisfies ProductInfoResponse);
@@ -44,8 +53,6 @@ app.get('/product', async (c) => {
 		return c.json({ error: { code: 'internal_error', message: 'Internal server error' } }, 500);
 	}
 });
-
-export default app;
 
 async function getProduct(code: string) {
 	try {
@@ -80,17 +87,40 @@ async function getProduct(code: string) {
 	}
 }
 
-async function getCompany(env: Env, name: string): Promise<CompanyInfo> {
-	// Caching:
-	const data = await env.BUY_EUROPEAN_KV.get(`company:${name}:${cacheVersion}`);
-	if (data) {
-		console.log(`Cache hit "${name}"`);
-		return JSON.parse(data) as CompanyInfo;
-	}
+// async function getCompany(env: Env, name: string, companyTag: string): Promise<CompanyInfoV2> {
+// 	// Caching:
+// 	// const data = await env.BUY_EUROPEAN_KV.get(`company:${companyTag}:${cacheVersion}`);
+// 	// if (data) {
+// 	// 	console.log(`Cache hit "${companyTag}"`);
+// 	// 	return JSON.parse(data) as CompanyInfoV2;
+// 	// }
 
-	console.log(`Cache miss "${name}"`);
+// 	// console.log(`Cache miss "${name}"`);
 
-	const companyInfo = await lookupCompany(env, name);
-	await env.BUY_EUROPEAN_KV.put(`company:${name}:${cacheVersion}`, JSON.stringify(companyInfo));
-	return companyInfo;
-}
+// 	const companyInfo = await lookupCompanyV2(env, { name, tag: companyTag });
+// 	// await env.BUY_EUROPEAN_KV.put(`company:${companyTag}:${cacheVersion}`, JSON.stringify(companyInfo));
+// 	return companyInfo;
+// }
+
+
+// async function fetchCache< T>(env: Env, key: string, fallback: () => T | Promise<T>, options: { skip?: boolean, ttl?: number } = {}) {
+// 	if (options.skip) {
+// 		return fallback();
+// 	}
+
+// 	const data = await env.BUY_EUROPEAN_KV.get(`${key}:${cacheVersion}`);
+// 	if (data) {
+// 		const dataObj = JSON.parse(data);
+
+// 		if (dataObj.expiresAt && dataObj.expiresAt > Date.now()) {
+// 			return dataObj.value;
+// 		}
+// 	}
+
+// 	const result = await fallback();
+// 	await env.BUY_EUROPEAN_KV.put(`${key}:${cacheVersion}`, JSON.stringify({
+// 		value: result,
+// 		expiresAt: options.ttl ? Date.now() + options.ttl : undefined,
+// 	}));
+// 	return result;
+// }

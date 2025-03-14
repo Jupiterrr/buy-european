@@ -8,7 +8,7 @@
 	"main": "src/index.ts",
 	"compatibility_date": "2025-03-03",
 	"observability": {
-		"enabled": true,
+		"enabled": true
 	},
 	/**
 	 * Smart Placement
@@ -53,7 +53,15 @@
 		{
 			"binding": "BUY_EUROPEAN_KV",
 			"id": "93dbff141dcc4753b4cd3f0d7ec6df02",
-			"preview_id": "YOUR_PREVIEW_NAMESPACE_ID",
-		},
+			"preview_id": "YOUR_PREVIEW_NAMESPACE_ID"
+		}
 	],
+
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "buy-european-db",
+			"database_id": "970e60a7-46a7-47f7-a7db-3c018fb1416e"
+		}
+	]
 }
