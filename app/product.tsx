@@ -2,14 +2,19 @@ import { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
 import { ScanResultScreen } from "../components/scan-result/ScanResultScreen";
-import { useProductInfo } from "../lib/useProductInfo";
+import { rootStore } from "../lib/rootStore";
+import { observer } from "mobx-react-lite";
 
-export default function ProductScreen() {
+const ProductScreen = observer(function ProductScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const code: string = typeof params.code === "string" ? params.code : params.code?.[0];
-  const { product, error, loading } = useProductInfo(code);
+  const { product, error, loading, currentLoadingCode } = rootStore.productStore;
   const showLoading = useTimer(500);
+
+  if (!currentLoadingCode) {
+    rootStore.productStore.fetchProduct(code);
+  }
 
   if (!code) {
     router.dismissTo("/scan");
@@ -56,7 +61,7 @@ export default function ProductScreen() {
   }
 
   return <ScanResultScreen product={product} />;
-}
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -73,3 +78,5 @@ function useTimer(delay: number) {
   }, [delay]);
   return isReady;
 }
+
+export default ProductScreen;

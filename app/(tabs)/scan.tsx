@@ -1,17 +1,22 @@
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
-import { AlertCircle, CheckCircle, ScanLine, XCircle } from "lucide-react-native";
-import { useCallback, useEffect, useState } from "react";
-import { Button, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { companiesDatabase } from "../../components/database";
-import { useFocusEffect } from "@react-navigation/native";
-import { eanPrefixes } from "../../lib/ean_prefix";
-import { ScanResultScreen } from "../../components/scan-result/ScanResultScreen";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { useRouter } from "expo-router";
+import { ScanLine } from "lucide-react-native";
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import CustomButton from "@/components/Button";
+import { rootStore } from "@/lib/rootStore";
+import { useCallback, useRef } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const router = useRouter();
+  const scanned = useRef(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      scanned.current = false;
+    }, [])
+  );
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -44,6 +49,10 @@ export default function ScanScreen() {
   }
 
   async function handleBarCodeScanned({ type, data }: { type: string; data: string }) {
+    if (scanned.current) return;
+    scanned.current = true;
+
+    rootStore.productStore.fetchProduct(data);
     router.push({
       pathname: "/product",
       params: {
