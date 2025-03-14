@@ -55,14 +55,34 @@ app.get('/product', async (c) => {
 });
 
 async function getProduct(code: string) {
-	try {
+	async function fetchOpenFoodFactsProduct(code: string) {
 		const url = `https://world.openfoodfacts.org/api/v3/product/${encodeURIComponent(code)}.json`;
 		const response = await fetch(url, {
 			headers: {
 				'User-Agent': `Buy European - API`,
 			},
 		});
-		const product = (await response.json()) as any;
+		return (await response.json()) as any;
+	}
+
+	async function fetchOpenBeautyFactsProduct(code: string) {
+		const url = `https://world.openbeautyfacts.org/api/v3/product/${encodeURIComponent(code)}.json`;
+		const response = await fetch(url, {
+			headers: {
+				'User-Agent': `Buy European - API`,
+			},
+		});
+		return (await response.json()) as any;
+	}
+
+	try {
+		const [foodProduct, beautyProduct] = await Promise.all([fetchOpenFoodFactsProduct(code), fetchOpenBeautyFactsProduct(code)]);
+
+		let product = foodProduct;
+		if (product.status === 'failure') {
+			product = beautyProduct;
+		}
+
 		// const { country, origin } = getCountryFromEAN(code) || { country: null, origin: null };
 
 		if (product.status === 'failure') {
@@ -70,7 +90,7 @@ async function getProduct(code: string) {
 			if (product.result.id === 'product_not_found' || product.result.id === 'product_found_with_a_different_product_type') {
 				return { error: { code: 'not_found', message: 'Product not found' } };
 			} else {
-				return { error: { code: 'internal_error', message: 'Error fetching product from OpenFoodFacts' } };
+				return { error: { code: 'internal_error', message: 'Error fetching product from API' } };
 			}
 		} else {
 			const p = product.product;
@@ -83,7 +103,7 @@ async function getProduct(code: string) {
 			};
 		}
 	} catch (error) {
-		return { error: { code: 'internal_error', message: 'Error fetching product from OpenFoodFacts' } };
+		return { error: { code: 'internal_error', message: 'Error fetching product from API' } };
 	}
 }
 
@@ -101,7 +121,6 @@ async function getProduct(code: string) {
 // 	// await env.BUY_EUROPEAN_KV.put(`company:${companyTag}:${cacheVersion}`, JSON.stringify(companyInfo));
 // 	return companyInfo;
 // }
-
 
 // async function fetchCache< T>(env: Env, key: string, fallback: () => T | Promise<T>, options: { skip?: boolean, ttl?: number } = {}) {
 // 	if (options.skip) {
