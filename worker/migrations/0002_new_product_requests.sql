@@ -1,0 +1,10 @@
+-- Migration number: 0002 	 2025-03-13T20:26:27.560Z
+CREATE TABLE IF NOT EXISTS new_product_requests (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	ean TEXT,
+	name TEXT,
+	data TEXT,
+	ip_address TEXT,
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	status TEXT NOT NULL
+);

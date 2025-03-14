@@ -11,13 +11,18 @@
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.6.4",
-		"@cloudflare/workers-types": "^4.20250303.0",
 		"typescript": "^5.5.2",
 		"vitest": "~2.1.9",
-		"wrangler": "^3.112.0"
+		"wrangler": "^4.0.0"
 	},
 	"dependencies": {
+		"@ai-sdk/openai": "^1.2.5",
 		"@google/generative-ai": "^0.23.0",
-		"hono": "^4.7.2"
+		"ai": "^4.1.61",
+		"drizzle-kit": "^0.30.5",
+		"drizzle-orm": "^0.40.0",
+		"hono": "^4.7.2",
+		"i18n-iso-countries": "^7.14.0",
+		"zod": "^3.24.2"
 	}
 }

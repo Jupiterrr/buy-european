@@ -1,13 +1,11 @@
 interface CompanyInfo {
 	company: {
 		name: string;
-		country: string;
-		isEu: boolean;
+		country: string | null;
 	} | null;
 	parentCompany: {
 		name: string;
-		country: string;
-		isEu: boolean;
+		country: string | null;
 	} | null;
 }
 

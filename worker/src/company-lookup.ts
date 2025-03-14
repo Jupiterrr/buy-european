@@ -1,74 +1,199 @@
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import { companyTable, parentCompanyTable } from './db/schema';
+import { eq } from 'drizzle-orm';
+import { getDb } from './db/schema';
+import { createOpenAI } from '@ai-sdk/openai';
+import { generateObject } from 'ai';
+import { z } from 'zod';
 
-export async function lookupCompany(env: Env, brand: string) {
-	const genAI = new GoogleGenerativeAI(env.GOOGLE_API_KEY);
+export interface CompanyInfoV2 {
+  company: {
+    name: string;
+    isoCountryCode: string | null;
+  };
+  parentCompany: {
+    name: string;
+    isoCountryCode: string | null;
+  } | null;
+}
 
-	const model = genAI.getGenerativeModel({
-		model: 'gemini-1.5-flash',
-		generationConfig: {
-			responseMimeType: 'application/json',
-			responseSchema: {
-				type: SchemaType.OBJECT,
-				properties: {
-					company: {
-						type: SchemaType.OBJECT,
-						properties: {
-							name: {
-								type: SchemaType.STRING,
-								description: 'Name of the company',
-								nullable: false,
-							},
-							country: {
-								type: SchemaType.STRING,
-								description: 'Country of the company',
-								nullable: false,
-							},
-							isEu: {
-								type: SchemaType.BOOLEAN,
-								description: 'Whether the company is located in the European Union',
-								nullable: false,
-							},
-						},
-						nullable: false,
-					},
-					parentCompany: {
-						type: SchemaType.OBJECT,
-						properties: {
-							name: {
-								type: SchemaType.STRING,
-								description: 'Name of the company',
-								nullable: false,
-							},
-							country: {
-								type: SchemaType.STRING,
-								description: 'Country of the company',
-								nullable: false,
-							},
-							isEu: {
-								type: SchemaType.BOOLEAN,
-								description: 'Whether the company is located in the European Union',
-								nullable: false,
-							},
-						},
-						nullable: true,
-					},
-				},
-			},
-		},
-	});
+async function lookupCompanyGemini(env: Env, brand: string) {
+  const genAI = new GoogleGenerativeAI(env.GOOGLE_API_KEY);
 
-	const prompt = `Provide information about the brand '${brand}' as JSON. Specifically, include:
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-2.0-flash',
+    generationConfig: {
+      responseMimeType: 'application/json',
+      temperature: 0.1,
+      responseSchema: {
+        type: SchemaType.OBJECT,
+        properties: {
+          company: {
+            type: SchemaType.OBJECT,
+            properties: {
+              name: {
+                type: SchemaType.STRING,
+                description: 'Name of the company or brand without corporate suffix or entity type',
+                nullable: false,
+              },
+              country: {
+                type: SchemaType.STRING,
+                description: 'Country of the company',
+                nullable: true,
+              },
+              isoCountryCode: {
+                type: SchemaType.STRING,
+                description: 'ISO country code of where the company is headquartered',
+                nullable: true,
+              },
+            },
+            nullable: false,
+          },
+          parentCompany: {
+            type: SchemaType.OBJECT,
+            properties: {
+              name: {
+                type: SchemaType.STRING,
+                description: 'Name of the parent company without corporate suffix or entity type',
+                nullable: false,
+              },
+              country: {
+                type: SchemaType.STRING,
+                description: 'Country of the parent company',
+                nullable: true,
+              },
+              isoCountryCode: {
+                type: SchemaType.STRING,
+                description: 'ISO country code of where the parent company is headquartered',
+                nullable: true,
+              },
+            },
+            nullable: true,
+          },
+        },
+      },
+    },
+  });
+
+  const prompt = `Provide information about the brand '${brand}' as JSON. Specifically, include:
     1. The company's official name.
-    2. Whether the company is located in the European Union (true/false).
-    3. The company's headquarters location.
-    4. The parent company's official name (if applicable).
-    5. The parent company's headquarters location (if applicable).
-    6. Whether the parent company's headquarters is in the European Union (true/false).
+    2. Country where the company is headquartered.
+    3. The parent company's official name (if applicable).
+    4. Country where the parent company is headquartered (if applicable).
 `;
 
-	const result = await model.generateContent(prompt);
-	const rawJson = result.response.text();
-	console.log('rawJson', rawJson);
-	const companyInfo: CompanyInfo = JSON.parse(rawJson);
-	return companyInfo;
+  const result = await model.generateContent(prompt);
+  const rawJson = result.response.text();
+  console.log('lookupCompany response [gemini]', rawJson);
+  const companyInfo = JSON.parse(rawJson) as CompanyInfoV2;
+  return companyInfo;
+}
+
+
+
+
+async function lookupCompanyOpenAi(env: Env, brand: string) {
+  const openai = createOpenAI({
+    // custom settings, e.g.
+    // compatibility: 'strict', // strict mode, enable when using the OpenAI API
+    apiKey: env.OPENAI_API_KEY,
+  });
+  const { object } = await generateObject({
+    model: openai('gpt-4o-mini'),
+    schema: z.object({
+      company: z.object({
+        name: z.string().describe('Name of the brand or the company without corporate suffix or entity type'),
+        // country: z.string().describe('Country of the company'),
+        isoCountryCode: z.string().describe('ISO country code of where the company is headquartered'),
+      }),
+      parentCompany: z.object({
+        name: z.string().describe('Name of the parent company without corporate suffix or entity type'),
+        // country: z.string().describe('Country of the parent company'),
+        isoCountryCode: z.string().describe('ISO country code of where the parent company is headquartered'),
+      }),
+    }),
+    prompt: `Provide information about the brand '${brand}' as JSON. Specifically, include:
+    1. The company's official name.
+    2. Country where the company is headquartered.
+    3. The parent company's official name (if applicable).
+    4. Country where the parent company is headquartered (if applicable).`,
+  });
+
+  const companyInfo = object;
+  console.log('lookupCompany response [openai]', companyInfo);
+  return companyInfo;
+}
+
+export async function lookupCompanyV2(env: Env, { name, tag }: { name: string; tag: string }): Promise<CompanyInfoV2> {
+  // 1. Lookup company info from db
+  const company = await getDb(env).select().from(companyTable).where(eq(companyTable.company_tag, tag)).get();
+  const parentCompany = company?.parent_company_tag
+    ? await getDb(env).select().from(parentCompanyTable).where(eq(parentCompanyTable.company_tag, company.parent_company_tag)).get()
+    : null;
+
+  console.log('lookupCompanyV2 cach result', { company: !!company, parentCompany: !!parentCompany });
+
+
+  if (company) {
+    return {
+      company: {
+        name: company.company_name,
+        isoCountryCode: company.country_code,
+      },
+      parentCompany: parentCompany
+        ? {
+            name: parentCompany.company_name,
+            isoCountryCode: parentCompany.country_code,
+          }
+        : null,
+    };
+  }
+
+  // 2. Lookup company info from LLM
+  // const companyInfo = await lookupCompanyGemini(env, name);
+  const companyInfo = await lookupCompanyOpenAi(env, name);
+
+  // 3.a Save parent company info to db
+  let parentCompanyTag: string | undefined;
+  if (companyInfo.parentCompany) {
+    parentCompanyTag = toCompanyTag(companyInfo.parentCompany.name);
+    await upsertCompany(env, {
+      name: companyInfo.parentCompany.name,
+      tag: parentCompanyTag,
+      isoCountryCode: companyInfo.parentCompany.isoCountryCode,
+    });
+  }
+
+  // 3.b Save company info to db
+  if (companyInfo.company) {
+    await upsertCompany(env, {
+      name: name,
+      tag: tag,
+      isoCountryCode: companyInfo.company.isoCountryCode,
+      parentCompanyTag: parentCompanyTag ?? undefined,
+    });
+  }
+
+  return companyInfo;
+}
+
+async function upsertCompany(env: Env, companyInfo: { name: string; tag: string; isoCountryCode: string | null; parentCompanyTag?: string }) {
+  await getDb(env)
+    .insert(companyTable)
+    .values({
+      company_tag: companyInfo.tag,
+      company_name: companyInfo.name,
+      country_code: companyInfo.isoCountryCode,
+      parent_company_tag: companyInfo.parentCompanyTag,
+      source: 'llm',
+    })
+    .onConflictDoNothing();
+}
+
+function toCompanyTag(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/ /g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .toLowerCase();
 }
