@@ -13,7 +13,8 @@
       "bundleIdentifier": "com.carsam.buyeuropean",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "buildNumber": "3"
     },
     "web": {
       "bundler": "metro",
@@ -52,7 +53,7 @@
     },
     "android": {
       "package": "com.carsam.buyeuropean",
-      "versionCode": 3,
+      "versionCode": 4,
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"

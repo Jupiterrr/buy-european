@@ -17,7 +17,7 @@ export interface CompanyInfoV2 {
   } | null;
 }
 
-async function lookupCompanyGemini(env: Env, brand: string) {
+export async function lookupCompanyGemini(env: Env, brand: string) {
   const genAI = new GoogleGenerativeAI(env.GOOGLE_API_KEY);
 
   const model = genAI.getGenerativeModel({
