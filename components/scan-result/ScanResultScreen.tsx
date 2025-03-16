@@ -381,7 +381,7 @@ function InfoSection({
       >
         <Text style={{ fontSize: 14, fontWeight: "bold", flex: 1 }}>{label}</Text>
 
-        <Text style={{ fontSize: 14, fontWeight: "bold", }}>{value}</Text>
+        <Text style={{ fontSize: 14, fontWeight: "bold", flex: 1,}}>{value}</Text>
       </View>
       {description && <Text style={{ fontSize: 14, color: "#666666" }}>{description}</Text>}
     </View>

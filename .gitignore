@@ -43,3 +43,4 @@ android/*
 ios/*
 # @end expo-cli
 .env
+off_data/off.db
