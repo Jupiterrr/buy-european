@@ -89,9 +89,6 @@ export async function lookupCompanyGemini(env: Env, brand: string) {
   return companyInfo;
 }
 
-
-
-
 async function lookupCompanyOpenAi(env: Env, brand: string) {
   const openai = createOpenAI({
     // custom settings, e.g.

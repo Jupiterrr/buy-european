@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 import * as countries from 'i18n-iso-countries';
 import countryDataEn from 'i18n-iso-countries/langs/en.json';
-import { lookupCompanyV2 } from './company-lookup';
+import { lookupCompanyGemini, lookupCompanyV2 } from './company-lookup';
+import { getProductByEan } from './products-update';
 import { getCompanyOrigin } from './isEuropeanCountry';
 
 countries.registerLocale(countryDataEn);
@@ -11,6 +12,41 @@ export default app;
 
 const cacheVersion = 1;
 
+app.get('/local-product', async(c) => {
+	const code = c.req.query('code');
+
+	if (!code) {
+		return c.json({ error: { code: 'invalid_request', message: 'Code parameter is required' } }, 400);
+	}
+
+	async function fetchProductFromLocalDb(code: string) {
+		try {
+			if (!code) {
+				return c.json({ error: 'Name parameter is required' }, 400);
+			}
+	
+			console.log('fetchProductFromLocalDb', c.env);
+			const product = await getProductByEan(c.env, code);
+			console.log('local product', product);
+	
+			return c.json({ data: product });
+		} catch(e) {
+			console.error('Error:', e);
+			return c.json({ error: e }, 400);
+		}
+	}
+
+	const localProduct = fetchProductFromLocalDb(code);
+	return localProduct;
+
+	// return {
+	// 	product_name: p.product_name,
+	// 	brands: p.brands,
+	// 	brands_tags: p.brands_tags,
+	// 	image_front_url: p.image_front_url,
+	// };
+});
+
 app.get('/product', async (c) => {
 	try {
 		const code = c.req.query('code');
@@ -19,7 +55,7 @@ app.get('/product', async (c) => {
 			return c.json({ error: { code: 'invalid_request', message: 'Code parameter is required' } }, 400);
 		}
 
-		const productInfo = await getProduct(code);
+		const productInfo = await getProduct(code, c);
 
 		if (productInfo.error) {
 			return c.json(productInfo, 400);
@@ -54,7 +90,29 @@ app.get('/product', async (c) => {
 	}
 });
 
-async function getProduct(code: string) {
+app.get('/company', async (c) => {
+	const name = c.req.query('name');
+	if (!name) {
+		return c.json({ error: 'Name parameter is required' }, 400);
+	}
+
+	// Caching:
+	const data = await c.env.BUY_EUROPEAN_KV.get(`company:${name}:${cacheVersion}`);
+	if (data) {
+		console.log(`Cache hit "${name}"`);
+		return c.json({ data: JSON.parse(data) });
+	}
+
+	console.log(`Cache miss "${name}"`);
+
+	const companyInfo = await lookupCompanyGemini(c.env, name);
+	await c.env.BUY_EUROPEAN_KV.put(`company:${name}:${cacheVersion}`, JSON.stringify(companyInfo));
+
+	return c.json({ data: companyInfo });
+});
+
+
+async function getProduct(code: string, c: any) {
 	async function fetchOpenFoodFactsProduct(code: string) {
 		const url = `https://world.openfoodfacts.org/api/v3/product/${encodeURIComponent(code)}.json`;
 		const response = await fetch(url, {
@@ -94,7 +152,6 @@ async function getProduct(code: string) {
 			}
 		} else {
 			const p = product.product;
-			console.log('openfoodfacts product', p);
 			return {
 				product_name: p.product_name,
 				brands: p.brands,
