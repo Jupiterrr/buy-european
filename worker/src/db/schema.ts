@@ -18,4 +18,21 @@ export const companyTable = sqliteTable('companies', {
 	source: text().$type<'off' | 'llm' | 'scraper' | 'manual'>().notNull(),
 });
 
+
+export const productsTable = sqliteTable('products', {
+	// open food fact company tag
+	ean: text().primaryKey(),
+	name: text(),
+	data: text(),
+	company_tag: text(),
+	company_name: text(),
+	image_url: text(),
+	source: text().$type<'app'>(),
+	// maybe add ip if we have it
+	created_at: text()
+		.notNull()
+		.$defaultFn(() => new Date().toISOString()),
+	status: text().$type<'draft' | 'submitted' | 'accepted' | 'declined'>().notNull(),
+});
+
 export const parentCompanyTable = aliasedTable(companyTable, 'parent');
