@@ -35,4 +35,27 @@ export const productsTable = sqliteTable('products', {
 	status: text().$type<'draft' | 'submitted' | 'accepted' | 'declined'>().notNull(),
 });
 
+export const newPoductTable = sqliteTable('new_product_requests', {
+	// open food fact company tag
+	ean: text().primaryKey(),
+	name: text(),
+	data: text(),
+	ip_address: text(),
+	created_at: text()
+		.notNull()
+		.$defaultFn(() => new Date().toISOString()),
+	status: text().$type<'draft' | 'submitted' | 'accepted' | 'declined'>().notNull(),
+});
+
+export const changeRequestsTable = sqliteTable('change_requests', {
+	// open food fact company tag
+	data: text().notNull(),
+	ip_address: text(),
+	request_type: text().notNull(),
+	created_at: text()
+		.notNull()
+		.$defaultFn(() => new Date().toISOString()),
+	status: text().$type<'draft' | 'submitted' | 'accepted' | 'declined'>().notNull(),
+});
+
 export const parentCompanyTable = aliasedTable(companyTable, 'parent');
