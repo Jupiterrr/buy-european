@@ -41,6 +41,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="edit"
+        options={{
+          href: null,
+          title: "Edit",
+          tabBarIcon: ({ color, size }) => <Rabbit size={size} color={color} />,
+          headerTitle: "Edit Company Information",
+        }}
+      />
+      <Tabs.Screen
         name="product"
         options={{
           href: null,

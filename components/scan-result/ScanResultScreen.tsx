@@ -6,16 +6,17 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
-import { Product } from "../../lib/useProductInfo";
+import { router } from "expo-router";
 
-export function ScanResultScreen({ product }: { product: Product }) {
+export function ScanResultScreen({ product }: { product: any }) {
   return (
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.image2Container}>
-          <Image source={{ uri: product.imageUrl }} style={styles.image2} resizeMode="contain" />
+          <Image source={{ uri: product.imageUrl != null ? product.imageUrl : product.base64Image }} style={styles.image2} resizeMode="contain" />
         </View>
 
         <Text
@@ -121,12 +122,34 @@ export function ScanResultScreen({ product }: { product: Product }) {
             color: "#888888",
             paddingHorizontal: 24,
             marginTop: 24,
-            marginBottom: 24,
+            marginBottom: 12,
             textAlign: "center",
           }}
         >
           Always refer to the labels on the packaging for the most accurate information.
         </Text>
+        <TouchableOpacity onPress={() => {
+          console.log("product", product);
+              router.push({
+                pathname: "/edit",
+                params: {
+                  data: JSON.stringify({'product': product, 'isNew': false}),
+                },
+        });}}>
+      
+        <Text
+        style={{
+          fontSize: 12,
+          color: "#b53539",
+          paddingHorizontal: 24,
+          marginTop: 12,
+          marginBottom: 24,
+          textAlign: "center",
+          textDecorationLine: "underline",
+        }}>
+          Found an error?
+        </Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );

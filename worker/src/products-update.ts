@@ -1,24 +1,38 @@
-import { getDb, productsTable } from './db/schema';
-import { eq } from 'drizzle-orm';
+import { changeRequestsTable, getDb, newPoductTable, productsTable } from './db/schema';
+import { and, eq } from 'drizzle-orm';
 
-export async function saveProductInDb(env: Env, product:any) {
+export async function saveProductInDb(env: Env, product:LocalProduct) {
     await getDb(env)
-    .insert(productsTable)
+    .insert(newPoductTable)
     .values({
       ean: product.ean,
       name: product.name,
       data: product.data,
-      created_at: Date.now(),
+      ip_address: product.ip_address,
+      created_at: new Date().toISOString(),
       status: 'submitted',
-      source: 'app',
-      company_tag: product.company_tag,
-      company_name: product.company_name,
-      image_url: product.image_url,
     })
-    .onConflictDoNothing();
+    .onConflictDoNothing()
+    .execute();
 }
 
-export async function getProductByEan(env: Env, ean:string) {
-    console.log('env', env);
-    const company = await getDb(env).select().from(productsTable).where(eq(productsTable.ean, ean)).get();
+export async function getProductByEan(env: Env, ean: string) {
+    const company = await getDb(env).select().from(newPoductTable).where(
+        and(
+            eq(newPoductTable.ean, ean),
+            eq(newPoductTable.status, 'accepted') 
+        )
+    ).get();
+    return company;
+}
+
+export async function saveChangeRequest(env: Env, changeRequest: ChangeRequest) {
+    await getDb(env).insert(changeRequestsTable).values({
+        data: changeRequest.data,
+        created_at: new Date().toISOString(),
+        request_type: 'app',
+        ip_address: changeRequest.ip_address,
+        status: 'submitted',
+    }).onConflictDoNothing()
+    .execute();
 }

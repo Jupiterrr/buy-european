@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
-import { companyTable, parentCompanyTable } from './db/schema';
+import { changeRequestsTable, companyTable, parentCompanyTable } from './db/schema';
 import { eq } from 'drizzle-orm';
 import { getDb } from './db/schema';
 import { createOpenAI } from '@ai-sdk/openai';
@@ -122,7 +122,7 @@ async function lookupCompanyOpenAi(env: Env, brand: string) {
 }
 
 export async function lookupCompanyV2(env: Env, { name, tag }: { name: string; tag: string }): Promise<CompanyInfoV2> {
-  // 1. Lookup company info from db
+  // 1. Lookup company info from db 
   const company = await getDb(env).select().from(companyTable).where(eq(companyTable.company_tag, tag)).get();
   const parentCompany = company?.parent_company_tag
     ? await getDb(env).select().from(parentCompanyTable).where(eq(parentCompanyTable.company_tag, company.parent_company_tag)).get()

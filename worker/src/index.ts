@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import * as countries from 'i18n-iso-countries';
 import countryDataEn from 'i18n-iso-countries/langs/en.json';
 import { lookupCompanyGemini, lookupCompanyV2 } from './company-lookup';
-import { getProductByEan } from './products-update';
+import { getProductByEan, saveChangeRequest, saveProductInDb } from './products-update';
 import { getCompanyOrigin } from './isEuropeanCountry';
 
 countries.registerLocale(countryDataEn);
@@ -12,6 +12,56 @@ export default app;
 
 const cacheVersion = 1;
 
+app.post('/change-request', async (c) => {
+	try {
+		const body = await c.req.json();
+		const data = body;
+		await saveChangeRequest(c.env, data);
+
+		return c.json({ message: 'Product saved successfully', data: { data} }, 200);
+	} catch (error) {
+        console.error('Error saving product:', error);
+        return c.json({ error: { code: 'internal_error', message: 'Internal server error' } }, 500);
+    }
+});
+
+app.post('/new-product', async (c) => {
+    try {
+        const body = await c.req.json();
+        const product = body;
+
+        if (!product) {
+            return c.json({ error: { code: 'invalid_request', message: 'Missing required fields product' } }, 400);
+        }
+
+		await saveProductInDb(c.env, product);
+        
+
+        return c.json({ message: 'Product saved successfully', data: { product} }, 200);
+    } catch (error) {
+        console.error('Error saving product:', error);
+        return c.json({ error: { code: 'internal_error', message: 'Internal server error' } }, 500);
+    }
+});
+
+async function fetchProductFromLocalDb(c, code: string) {
+	try {
+		if (!code) {
+			return null;
+		}
+
+		let product = await getProductByEan(c.env, code);
+		if (product) {
+			product.data = JSON.parse(product?.data ?? '');
+		}
+		
+		return product
+	} catch(e) {
+		console.error('Error:', e);
+		return null;
+	}
+}
+
 app.get('/local-product', async(c) => {
 	const code = c.req.query('code');
 
@@ -19,32 +69,8 @@ app.get('/local-product', async(c) => {
 		return c.json({ error: { code: 'invalid_request', message: 'Code parameter is required' } }, 400);
 	}
 
-	async function fetchProductFromLocalDb(code: string) {
-		try {
-			if (!code) {
-				return c.json({ error: 'Name parameter is required' }, 400);
-			}
-	
-			console.log('fetchProductFromLocalDb', c.env);
-			const product = await getProductByEan(c.env, code);
-			console.log('local product', product);
-	
-			return c.json({ data: product });
-		} catch(e) {
-			console.error('Error:', e);
-			return c.json({ error: e }, 400);
-		}
-	}
-
-	const localProduct = fetchProductFromLocalDb(code);
-	return localProduct;
-
-	// return {
-	// 	product_name: p.product_name,
-	// 	brands: p.brands,
-	// 	brands_tags: p.brands_tags,
-	// 	image_front_url: p.image_front_url,
-	// };
+	const localProduct = await fetchProductFromLocalDb(c, code);
+	return c.json(localProduct ?? null);
 });
 
 app.get('/product', async (c) => {
@@ -70,15 +96,18 @@ app.get('/product', async (c) => {
 				code: code,
 				name: productInfo.product_name,
 				imageUrl: productInfo.image_front_url,
+				base64Image: productInfo.base_64_image,
 				company: {
 					name: companyInfo.company.name,
 					country: (companyInfo.company.isoCountryCode && countries.getName(companyInfo.company.isoCountryCode, 'en')) ?? null,
+					countryCode: companyInfo.company.isoCountryCode,
 				},
 				parentCompany: companyInfo.parentCompany
 					? {
 							name: companyInfo.parentCompany.name,
 							country:
 								(companyInfo.parentCompany.isoCountryCode && countries.getName(companyInfo.parentCompany.isoCountryCode, 'en')) ?? null,
+							countryCode: companyInfo.parentCompany.isoCountryCode,
 					  }
 					: null,
 				companyOrigin,
@@ -135,15 +164,17 @@ async function getProduct(code: string, c: any) {
 
 	try {
 		const [foodProduct, beautyProduct] = await Promise.all([fetchOpenFoodFactsProduct(code), fetchOpenBeautyFactsProduct(code)]);
+		const localProduct = await fetchProductFromLocalDb(c, code);
 
 		let product = foodProduct;
 		if (product.status === 'failure') {
 			product = beautyProduct;
 		}
+		
 
 		// const { country, origin } = getCountryFromEAN(code) || { country: null, origin: null };
 
-		if (product.status === 'failure') {
+		if (product.status === 'failure' && localProduct == null) {
 			console.log('off rq error', product);
 			if (product.result.id === 'product_not_found' || product.result.id === 'product_found_with_a_different_product_type') {
 				return { error: { code: 'not_found', message: 'Product not found' } };
@@ -153,10 +184,11 @@ async function getProduct(code: string, c: any) {
 		} else {
 			const p = product.product;
 			return {
-				product_name: p.product_name,
-				brands: p.brands,
-				brands_tags: p.brands_tags,
-				image_front_url: p.image_front_url,
+				product_name: localProduct?.name ?? p?.product_name,
+				brands: localProduct?.data?.company?.name ?? p?.brands,
+				brands_tags: localProduct?.data?.company?.name != null ? [localProduct?.data?.company?.name] : p?.brands_tags,
+				image_front_url: p?.image_front_url, // TODO: how to do it with base64
+				base_64_image: localProduct?.data?.base64image,
 			};
 		}
 	} catch (error) {

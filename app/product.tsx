@@ -30,6 +30,15 @@ const ProductScreen = observer(function ProductScreen() {
           <View style={{ marginTop: 24 }}>
             <Button title="Go back" onPress={() => router.dismissTo("/scan")} />
           </View>
+          <View style={{ marginTop: 24 }}>
+            <Button title="Add product" onPress={() => router.push({
+              pathname: "/edit",
+              params: {
+                data: JSON.stringify({'product': {'code': code,}, 'isNew': true}),
+              },
+            })} />
+          </View>
+          
         </View>
       );
     } else {

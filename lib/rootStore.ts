@@ -25,6 +25,53 @@ class ProductStore {
     makeAutoObservable(this);
   }
 
+  async makeChangeRequest(data: any) {
+    try {
+      const response = await fetch(`${this.API_BASE}/change-request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      const result:any = await response.json();
+  
+      if (!response.ok) {
+        console.error('Error:', result.error);
+        throw new Error(result.error.message);
+      }
+  
+      console.log('Product saved successfully:', result);
+    } catch (error) {
+      console.error('Request failed:', error);
+    }
+    
+  }
+
+  async addProduct(product: LocalProduct) {
+    try {
+      const response = await fetch(`${this.API_BASE}/new-product`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product),
+      });
+  
+      const data:any = await response.json();
+  
+      if (!response.ok) {
+        console.error('Error:', data.error);
+        throw new Error(data.error.message);
+      }
+  
+      console.log('Product saved successfully:', data);
+    } catch (error) {
+      console.error('Request failed:', error);
+    }
+  }
+
   async fetchProduct(code: string) {
     if (this.currentLoadingCode === code && this.error === null) {
       return;
@@ -50,6 +97,7 @@ class ProductStore {
     try {
       const url = new URL(`${this.API_BASE}/product`);
       url.searchParams.set("code", code);
+
       console.log("fetching product", url.toString());
       const rq = await fetch(url, {
         method: "GET",
