@@ -2,7 +2,7 @@
   "expo": {
     "name": "Buy European",
     "slug": "buy-european",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "buyeuropean",
@@ -14,7 +14,7 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "3"
+      "buildNumber": "5"
     },
     "web": {
       "bundler": "metro",
@@ -53,7 +53,7 @@
     },
     "android": {
       "package": "com.carsam.buyeuropean",
-      "versionCode": 4,
+      "versionCode": 6,
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
