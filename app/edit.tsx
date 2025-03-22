@@ -7,6 +7,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { rootStore } from "@/lib/rootStore";
 import { Snackbar } from 'react-native-paper';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 const countries = [
   { label: "Afghanistan", value: "AF" },
@@ -191,25 +192,15 @@ export default function EditCompanyScreen() {
   // Function to convert image to Base64
   const convertToBase64 = async (uri: string) => {
     try {
-      // Extract file extension to determine MIME type
-      const fileExtension = uri.split('.').pop()?.toLowerCase();
+      const manipulatedImage = await ImageManipulator.manipulateAsync(
+        uri,
+        [{ resize: { width: 800 } }], // Resize to 800px width (maintains aspect ratio)
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+      );
   
-      let mimeType = "image/jpeg"; // Default MIME type
-      if (fileExtension === "png") mimeType = "image/png";
-      if (fileExtension === "jpg" || fileExtension === "jpeg") mimeType = "image/jpeg";
-      if (fileExtension === "gif") mimeType = "image/gif";
-      if (fileExtension === "webp") mimeType = "image/webp";
-  
-      // Read the file as Base64
-      const base64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-  
-      // Construct a valid Base64 URI
-      const base64String = `data:${mimeType};base64,${base64}`;
-  
-      setBase64Image(base64String); // Store the Base64 image string
-      return base64String; // Return the valid Base64 string
+      const base64String = `data:image/jpeg;base64,${manipulatedImage.base64}`;
+      setBase64Image(base64String);
+      return base64String;
     } catch (error) {
       console.error("Error converting to Base64:", error);
       return null;
@@ -225,7 +216,7 @@ export default function EditCompanyScreen() {
 
     if (companyName != null ||companyCountry != null || parentCompany != null || parentCompanyCountry != null) {
       // check if origin of country is changed
-      if (companyCountry != product?.company?.countryCode) {
+      if (companyCountry != product?.company?.countryCode && companyCountry!= '') {
         rootStore.productStore.makeChangeRequest({
           'data': JSON.stringify({
             'company': companyName,
@@ -248,7 +239,7 @@ export default function EditCompanyScreen() {
     
       
       // check if parent company origin has changed
-      if (parentCompanyCountry != product?.parentCompany?.countryCode) {
+      if (parentCompanyCountry != product?.parentCompany?.countryCode && parentCompany!= '') {
         rootStore.productStore.makeChangeRequest({
           'data': JSON.stringify({
             'company': parentCompany,
@@ -259,7 +250,7 @@ export default function EditCompanyScreen() {
       }
     }
     
-    if (product.code != null || productName != null || companyName != null || base64Image != null) {
+    if (product.code != null && ((productName != null && product.name != productName) || (companyName != null && product.company.name != companyName) || (base64Image != null))) {
       // check for any changes
       if (productName != product?.name || companyName != product?.company?.name || base64Image != product?.base64Image) {
         rootStore.productStore.addProduct({

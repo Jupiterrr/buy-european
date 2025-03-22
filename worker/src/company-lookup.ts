@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { changeRequestsTable, companyTable, parentCompanyTable } from './db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import { getDb } from './db/schema';
 import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
@@ -15,6 +15,44 @@ export interface CompanyInfoV2 {
     name: string;
     isoCountryCode: string | null;
   } | null;
+}
+
+export async function detectAbusiveText(env: Env, text: string) {
+  try {
+    const genAI = new GoogleGenerativeAI(env.GOOGLE_API_KEY);
+
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.0-flash',
+      generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.1,
+        responseSchema: {
+          type: SchemaType.OBJECT,
+          properties: {
+            abusive: {
+              type: SchemaType.BOOLEAN,
+              description: 'Does the given text contain abusive words?',
+              nullable: false,
+            },
+          },
+        },
+      },
+    });
+
+    const prompt = `You are an expert in detecting abusive text. A user added this text in the app.
+    Please provide, if this text has any abusive content. Return a json with true or false.
+    Text: "${text}"
+  `;
+
+    const result = await model.generateContent(prompt);
+    const rawJson = result.response.text();
+    console.log('detectAbusiveText [gemini]', rawJson);
+    const jsonData = JSON.parse(result.response.text());
+
+    return jsonData;
+  } catch(e) {
+    return e;
+  }
 }
 
 export async function lookupCompanyGemini(env: Env, brand: string) {
@@ -119,6 +157,61 @@ async function lookupCompanyOpenAi(env: Env, brand: string) {
   const companyInfo = object;
   console.log('lookupCompany response [openai]', companyInfo);
   return companyInfo;
+}
+
+export async function getCompanyEntry(env: Env, { name, tag }: { name: string; tag: string }) {
+  let company = await getDb(env).select().from(companyTable).where(eq(companyTable.company_tag, tag)).get();
+  if (company == null) {
+    company = await getDb(env).select().from(companyTable).where(eq(companyTable.company_name, tag)).get();
+  }
+  
+  return company;
+}
+
+export async function updateCountryCode(
+  env: Env,
+  { tag, countryCode, parentCompany }: { tag: string; countryCode: string | null, parentCompany:string | null }
+) {
+
+  try {
+    let data:any = {};
+    if (countryCode != null && countryCode != '') {
+      data['country_code'] = countryCode;
+    }
+    if (parentCompany != null && parentCompany != '') {
+      data['parent_company_tag'] = parentCompany;
+
+      // Check if parent company exists
+      const parentCompanyEntry = await getCompanyEntry(env, {name: parentCompany, tag: parentCompany});
+      if (!parentCompanyEntry) {
+        // it needs to be created
+        const parentCompanyData = await lookupCompanyOpenAi(env, parentCompany);
+        if (parentCompanyData.company) {
+          await upsertCompany(env, {
+            name: parentCompany,
+            tag: parentCompany,
+            isoCountryCode: parentCompanyData.company.isoCountryCode,
+            parentCompanyTag: undefined,
+          });
+        }
+      }
+    }
+    data['source'] = 'manual';
+
+    const db = getDb(env);
+    const result = await db
+      .update(companyTable)
+      .set(data)
+      .where(
+        or(
+          eq(companyTable.company_tag, tag),
+          eq(companyTable.company_name, tag)
+        ));
+
+    return result;
+  } catch(e) {
+    return 'Error: ' + e;
+  }
 }
 
 export async function lookupCompanyV2(env: Env, { name, tag }: { name: string; tag: string }): Promise<CompanyInfoV2> {

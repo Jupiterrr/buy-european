@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import * as countries from 'i18n-iso-countries';
 import countryDataEn from 'i18n-iso-countries/langs/en.json';
-import { lookupCompanyGemini, lookupCompanyV2 } from './company-lookup';
+import { detectAbusiveText, getCompanyEntry, lookupCompanyGemini, lookupCompanyV2, updateCountryCode } from './company-lookup';
 import { getProductByEan, saveChangeRequest, saveProductInDb } from './products-update';
 import { getCompanyOrigin } from './isEuropeanCountry';
 
@@ -28,13 +28,15 @@ app.post('/change-request', async (c) => {
 app.post('/new-product', async (c) => {
     try {
         const body = await c.req.json();
-        const product = body;
+        const product:LocalProduct = body;
 
         if (!product) {
             return c.json({ error: { code: 'invalid_request', message: 'Missing required fields product' } }, 400);
         }
 
-		await saveProductInDb(c.env, product);
+		const isAbusive = await detectAbusiveText(c.env, JSON.stringify(body));
+
+		await saveProductInDb(c.env, product, isAbusive['abusive']);
         
 
         return c.json({ message: 'Product saved successfully', data: { product} }, 200);
@@ -118,6 +120,39 @@ app.get('/product', async (c) => {
 		return c.json({ error: { code: 'internal_error', message: 'Internal server error' } }, 500);
 	}
 });
+
+app.get('/company_request', async(c) => {
+	const name = c.req.query('name');
+	if (!name) {
+		return c.json({ error: 'Name parameter is required' }, 400);
+	}
+
+	const company = await getCompanyEntry(c.env, { name: name, tag: name });
+
+	return c.json({ data: company });
+});
+
+app.get('/update_country_code', async(c) => {
+	const name = c.req.query('name');
+	const countryCode = c.req.query('countryCode') || null;
+	const parentCompany = c.req.query('parentCompany') || null;
+	if (!name) {
+		return c.json({ error: 'Name parameter is required' }, 400);
+	}
+
+	const company = await updateCountryCode(c.env, { tag: name, countryCode: countryCode, parentCompany: parentCompany });
+
+	return c.json({ data: {'result': company, 'name': name, 'countryCode': countryCode, 'parentCompany': parentCompany,} });
+});
+
+// app.get('/abusive', async(c) => {
+// 	const text = c.req.query('text');
+// 	if (!text) {
+// 		return c.json({ error: 'Text parameter is required' }, 400);
+// 	}
+// 	const result = await detectAbusiveText(c.env, text);
+// 	return c.json({ data: result });
+// });
 
 app.get('/company', async (c) => {
 	const name = c.req.query('name');
