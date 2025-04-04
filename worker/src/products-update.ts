@@ -67,7 +67,7 @@ export async function saveChangeRequest(env: Env, changeRequest: ChangeRequest) 
         created_at: new Date().toISOString(),
         request_type: 'app',
         ip_address: changeRequest.ip_address,
-        status: 'submitted',
+        status: 'accepted',
     }).onConflictDoNothing()
     .execute();
 }

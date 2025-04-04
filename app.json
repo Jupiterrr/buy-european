@@ -2,7 +2,7 @@
   "expo": {
     "name": "Buy European",
     "slug": "buy-european",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "buyeuropean",
@@ -14,7 +14,7 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "5"
+      "buildNumber": "8"
     },
     "web": {
       "bundler": "metro",
@@ -28,9 +28,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
-          "recordAudioAndroid": true
+          "cameraPermission": "$(PRODUCT_NAME) needs camera access to scan barcodes",
         }
       ],
       [
@@ -53,10 +51,9 @@
     },
     "android": {
       "package": "com.carsam.buyeuropean",
-      "versionCode": 6,
+      "versionCode": 8,
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
       ]
     }
   }

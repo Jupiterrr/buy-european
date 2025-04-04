@@ -42,6 +42,12 @@ interface ChangeRequest {
 	data?: string,
 }
 
+interface ChangeRequestData {
+	'company': string,
+	'companyCountryCode': string,
+	'parentCompany': string,
+}
+
 type ProductInfoError = { error: { code: 'not_found' | 'invalid_request' | 'internal_error'; message: string }, data?: null };
 
 type ProductInfoResponse = { data: ProductInfo, error?: null } | ProductInfoError;

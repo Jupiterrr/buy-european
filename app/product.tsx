@@ -12,9 +12,11 @@ const ProductScreen = observer(function ProductScreen() {
   const { product, error, loading, currentLoadingCode } = rootStore.productStore;
   const showLoading = useTimer(500);
 
-  if (!currentLoadingCode) {
-    rootStore.productStore.fetchProduct(code);
-  }
+  useEffect(() => {
+    if (code) {
+      rootStore.productStore.fetchProduct(code);
+    }
+  }, [code]);
 
   if (!code) {
     router.dismissTo("/scan");
@@ -69,7 +71,7 @@ const ProductScreen = observer(function ProductScreen() {
     }
   }
 
-  return <ScanResultScreen product={product} />;
+  return <ScanResultScreen />;
 });
 
 const styles = StyleSheet.create({

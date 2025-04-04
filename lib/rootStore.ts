@@ -17,6 +17,7 @@ class ProductStore {
   error: ApiError | null = null;
   product: Product | null = null;
   currentLoadingCode: string | null = null;
+  updated: boolean = false;
 
   // API_BASE = "http://192.168.178.41:8787";
   API_BASE = "https://worker.carsten-487.workers.dev";
@@ -25,8 +26,9 @@ class ProductStore {
     makeAutoObservable(this);
   }
 
-  async makeChangeRequest(data: any) {
+  async makeChangeRequest(code: string, data: ChangeRequest) {
     try {
+      this.updated = true;
       const response = await fetch(`${this.API_BASE}/change-request`, {
         method: 'POST',
         headers: {
@@ -36,6 +38,8 @@ class ProductStore {
       });
   
       const result:any = await response.json();
+
+      await this.fetchProduct(code);
   
       if (!response.ok) {
         console.error('Error:', result.error);
@@ -51,6 +55,7 @@ class ProductStore {
 
   async addProduct(product: LocalProduct) {
     try {
+      this.updated = true;
       const response = await fetch(`${this.API_BASE}/new-product`, {
         method: 'POST',
         headers: {
@@ -73,7 +78,7 @@ class ProductStore {
   }
 
   async fetchProduct(code: string) {
-    if (this.currentLoadingCode === code && this.error === null) {
+    if (!this.updated && this.currentLoadingCode === code && this.error === null) {
       return;
     }
 
@@ -91,6 +96,7 @@ class ProductStore {
         this.product = data;
         this.error = error;
         this.loading = false;
+        this.updated = false;
       });
     };
 

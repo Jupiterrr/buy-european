@@ -40,13 +40,51 @@ export async function detectAbusiveText(env: Env, text: string) {
     });
 
     const prompt = `You are an expert in detecting abusive text. A user added this text in the app.
-    Please provide, if this text has any abusive content. Return a json with true or false.
+    Please provide, if this text has any abusive content and the brand text sounds like a valid brand. Return a json with true or false.
     Text: "${text}"
   `;
 
     const result = await model.generateContent(prompt);
     const rawJson = result.response.text();
     console.log('detectAbusiveText [gemini]', rawJson);
+    const jsonData = JSON.parse(result.response.text());
+
+    return jsonData;
+  } catch(e) {
+    return e;
+  }
+}
+
+
+export async function detectValidCompany(env: Env, text: string) {
+  try {
+    const genAI = new GoogleGenerativeAI(env.GOOGLE_API_KEY);
+
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.0-flash',
+      generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.1,
+        responseSchema: {
+          type: SchemaType.OBJECT,
+          properties: {
+            valid: {
+              type: SchemaType.BOOLEAN,
+              description: 'Is it a valid company name',
+              nullable: false,
+            },
+          },
+        },
+      },
+    });
+
+    const prompt = `You are an expert in company names. A user added this text in the app.
+    Please provide, if the name could be a valid company name.
+    Company name: "${text}"
+  `;
+
+    const result = await model.generateContent(prompt);
+    const rawJson = result.response.text();
     const jsonData = JSON.parse(result.response.text());
 
     return jsonData;

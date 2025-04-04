@@ -9,14 +9,26 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import { rootStore } from "@/lib/rootStore";
+import { observer } from "mobx-react-lite";
 
-export function ScanResultScreen({ product }: { product: any }) {
+export const ScanResultScreen = observer(() => {
+  const product = rootStore.productStore.product;
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (product?.code) {
+        rootStore.productStore.fetchProduct(product.code);
+      }
+    }, [product?.code])
+  );
+
   return (
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.image2Container}>
-          <Image source={{ uri: product.imageUrl != null ? product.imageUrl : product.base64Image }} style={styles.image2} resizeMode="contain" />
+          <Image source={{ uri: product?.imageUrl != null ? product.imageUrl : product?.base64Image }} style={styles.image2} resizeMode="contain" />
         </View>
 
         <Text
@@ -28,7 +40,7 @@ export function ScanResultScreen({ product }: { product: any }) {
             // textAlign: "center",
           }}
         >
-          {product.name}
+          {product?.name}
         </Text>
 
         {/** TODO: a third version, when we do not know */}
@@ -66,8 +78,8 @@ export function ScanResultScreen({ product }: { product: any }) {
         <InfoSectionDivider />
         <InfoSection
           label="Made by European company"
-          value={<MadeInEuValue madeInEu={product.companyOrigin} />}
-          isBad={product.companyOrigin !== "eu"}
+          value={<MadeInEuValue madeInEu={product?.companyOrigin} />}
+          isBad={product?.companyOrigin !== "eu"}
           // description={`Made by ${companyInfo?.company || "Unknown"}`}
         />
         <InfoSectionDivider />
@@ -76,8 +88,8 @@ export function ScanResultScreen({ product }: { product: any }) {
           label="Company"
           value={
             <CompanyDescription
-              name={product.company?.name || "Unknown"}
-              location={product.company?.country || "Unknown"}
+              name={product?.company?.name || "Unknown"}
+              location={product?.company?.country || "Unknown"}
             />
           }
         />
@@ -88,7 +100,7 @@ export function ScanResultScreen({ product }: { product: any }) {
             value={`${companyInfo?.parentCompany || "None"}${companyInfo?.parentCompanyHeadquarter ? ` (${companyInfo.parentCompanyHeadquarter})` : ""}`}
           />
         )} */}
-        {product.parentCompany && (
+        {product?.parentCompany && (
           <React.Fragment>
             <InfoSectionDivider />
 
@@ -97,7 +109,7 @@ export function ScanResultScreen({ product }: { product: any }) {
               value={
                 <CompanyDescription
                   name={product.parentCompany.name}
-                  location={product.parentCompany.country}
+                  location={product.parentCompany.country ?? ''}
                 />
               }
             />
@@ -153,7 +165,7 @@ export function ScanResultScreen({ product }: { product: any }) {
       </ScrollView>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -399,7 +411,7 @@ function InfoSection({
         style={{
           flexDirection: "row",
           flexWrap: "wrap",
-          alignItems: "center",
+          alignItems: "flex-start",
         }}
       >
         <Text style={{ fontSize: 14, fontWeight: "bold", flex: 1 }}>{label}</Text>
@@ -417,7 +429,7 @@ function InfoSectionDivider() {
 
 function CompanyDescription({ name, location }: { name: string; location: string }) {
   return (
-    <View style={{ flexDirection: "column", gap: 2, alignItems: "flex-end" }}>
+    <View style={{ flexDirection: "column", gap: 2, alignItems: "flex-start" }}>
       <Text style={{ fontWeight: "bold" }}>{name}</Text>
       <Text style={{ fontSize: 12, color: "#888888" }}>{location}</Text>
     </View>
