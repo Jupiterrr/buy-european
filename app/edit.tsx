@@ -217,7 +217,7 @@ export default function EditCompanyScreen() {
     if (companyName != null ||companyCountry != null || parentCompany != null || parentCompanyCountry != null) {
       // check if origin of country is changed
       if (companyCountry != product?.company?.countryCode && companyCountry!= '') {
-        rootStore.productStore.makeChangeRequest({
+        rootStore.productStore.makeChangeRequest(product.code,{
           'data': JSON.stringify({
             'company': companyName,
             'companyCountryCode': companyCountry,
@@ -227,8 +227,8 @@ export default function EditCompanyScreen() {
       }
       
       // check if parent company is changed
-      if ( parentCompany != product?.parentCompany?.name) {
-        rootStore.productStore.makeChangeRequest({
+      if ( parentCompany != '' && parentCompany != product?.parentCompany?.name) {
+        rootStore.productStore.makeChangeRequest(product.code,{
           'data': JSON.stringify({
             'company': companyName,
             'parentCompany': parentCompany,
@@ -239,8 +239,8 @@ export default function EditCompanyScreen() {
     
       
       // check if parent company origin has changed
-      if (parentCompanyCountry != product?.parentCompany?.countryCode && parentCompany!= '') {
-        rootStore.productStore.makeChangeRequest({
+      if (parentCompanyCountry != '' && parentCompanyCountry != product?.parentCompany?.countryCode && parentCompany!= '') {
+        rootStore.productStore.makeChangeRequest(product.code,{
           'data': JSON.stringify({
             'company': parentCompany,
             'companyCountryCode': parentCompanyCountry,
@@ -250,7 +250,7 @@ export default function EditCompanyScreen() {
       }
     }
     
-    if (product.code != null && ((productName != null && product.name != productName) || (companyName != null && product.company.name != companyName) || (base64Image != null))) {
+    if (product.code != null && ((productName != null && product.name != productName && productName != '' && productName != 'N/A') || (companyName != null && companyName != '' && product.company.name != companyName) || (base64Image != null))) {
       // check for any changes
       if (productName != product?.name || companyName != product?.company?.name || base64Image != product?.base64Image) {
         rootStore.productStore.addProduct({
@@ -349,6 +349,7 @@ export default function EditCompanyScreen() {
               selectedTextStyle={styles.selectedTextStyle}
               inputSearchStyle={styles.inputSearchStyle}
               iconStyle={styles.iconStyle}
+              autoScroll={false} 
               data={countries}
               search={false}
               maxHeight={300}
@@ -357,11 +358,8 @@ export default function EditCompanyScreen() {
               placeholder={!isFocusCompanyCountry ? 'Select country' : '...'}
               searchPlaceholder="Search..."
               value={companyCountry}
-              onFocus={() => setIsFocusCompanyCountry(true)}
-              onBlur={() => setIsFocusCompanyCountry(false)}
               onChange={item => {
                 setCompanyCountry(item.value);
-                setIsFocusCompanyCountry(false);
               }}
             />
     </>}

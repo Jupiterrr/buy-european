@@ -56,7 +56,7 @@ export function getCompanyOrigin(companyCountryCode: string | null | undefined, 
 		return 'unknown';
 	}
 
-	if (parentCompanyCountryCode) {
+	if (parentCompanyCountryCode != null && parentCompanyCountryCode != '' && parentCompanyCountryCode.toLowerCase() != 'n/a' && parentCompanyCountryCode.toLowerCase() != 'unkown') {
 		return isEuropeanCountry(companyCountryCode) && isEuropeanCountry(parentCompanyCountryCode) ? 'eu' : 'non-eu';
 	} else {
 		return isEuropeanCountry(companyCountryCode) ? 'eu' : 'non-eu';

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import * as countries from 'i18n-iso-countries';
 import countryDataEn from 'i18n-iso-countries/langs/en.json';
-import { detectAbusiveText, getCompanyEntry, lookupCompanyGemini, lookupCompanyV2, updateCountryCode } from './company-lookup';
+import { detectAbusiveText, detectValidCompany, getCompanyEntry, lookupCompanyGemini, lookupCompanyV2, updateCountryCode } from './company-lookup';
 import { getProductByEan, saveChangeRequest, saveProductInDb } from './products-update';
 import { getCompanyOrigin } from './isEuropeanCountry';
 
@@ -15,13 +15,45 @@ const cacheVersion = 1;
 app.post('/change-request', async (c) => {
 	try {
 		const body = await c.req.json();
-		const data = body;
+		const data:ChangeRequest = body;
+
+		const changeRequestData:ChangeRequestData = JSON.parse(data.data ?? '');
+		let companyName :string | null = changeRequestData.company;
+		let countryCode:string | null = changeRequestData.companyCountryCode;
+		let parentCompany:string | null = changeRequestData.parentCompany;
+
+		if (companyName == null || companyName.trim() == '' || companyName == 'N/A') {
+			// do not save if company is not given
+			return;
+		}
+
+		const validCompany = await detectValidCompany(c.env, changeRequestData.company);
+		if (!validCompany.valid) {
+			// no valid company
+			return;
+		}
+
+		if (countryCode == null || countryCode.trim() == '' || countryCode.trim() == 'N/A') {
+			countryCode = null;
+		}
+	
+		if (parentCompany == null || parentCompany.trim() == '' || parentCompany.trim() == 'N/A') {
+			parentCompany = null;
+		}
+
+		if (countryCode == null && parentCompany == null) {
+			// do not save if no data is given
+			return;
+		}
+
+		const company = await updateCountryCode(c.env, { tag: companyName, countryCode: countryCode, parentCompany: parentCompany });
+
 		await saveChangeRequest(c.env, data);
 
-		return c.json({ message: 'Product saved successfully', data: { data} }, 200);
+		return c.json({ message: 'Product saved successfully', data: { company} }, 200);
 	} catch (error) {
         console.error('Error saving product:', error);
-        return c.json({ error: { code: 'internal_error', message: 'Internal server error' } }, 500);
+        return c.json({ error: { code: `internal_error ${error}`, message: 'Internal server error' } }, 500);
     }
 });
 
@@ -140,6 +172,9 @@ app.get('/update_country_code', async(c) => {
 		return c.json({ error: 'Name parameter is required' }, 400);
 	}
 
+	// remove old entry from cache
+	await c.env.BUY_EUROPEAN_KV.delete(`company:${name}:${cacheVersion}`);
+
 	const company = await updateCountryCode(c.env, { tag: name, countryCode: countryCode, parentCompany: parentCompany });
 
 	return c.json({ data: {'result': company, 'name': name, 'countryCode': countryCode, 'parentCompany': parentCompany,} });
@@ -151,6 +186,15 @@ app.get('/update_country_code', async(c) => {
 // 		return c.json({ error: 'Text parameter is required' }, 400);
 // 	}
 // 	const result = await detectAbusiveText(c.env, text);
+// 	return c.json({ data: result });
+// });
+
+// app.get('/valid-company', async(c) => {
+// 	const text = c.req.query('text');
+// 	if (!text) {
+// 		return c.json({ error: 'Text parameter is required' }, 400);
+// 	}
+// 	const result = await detectValidCompany(c.env, text);
 // 	return c.json({ data: result });
 // });
 
