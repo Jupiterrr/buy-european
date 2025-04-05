@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Image, Linking, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Linking, TouchableOpacity, Share } from 'react-native';
 import { ExternalLink, Mail, Flag, Heart } from 'lucide-react-native';
 
 export default function AboutScreen() {
@@ -12,6 +12,25 @@ export default function AboutScreen() {
         <View style={styles.overlay}>
           <Text style={styles.title}>About Buy European</Text>
         </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Share the App</Text>
+        <Text style={styles.paragraph}>
+          Love using Buy European? Share it with your friends and family!
+        </Text>
+        <TouchableOpacity
+          style={styles.contactButton}
+          onPress={() => {
+            Share.share({
+              message:
+                'Check out Buy European – the app that helps you find products made by European companies. Available now:\n\nAndroid: https://play.google.com/store/apps/details?id=com.carsam.buyeuropean\nApple: https://apps.apple.com/lt/app/buy-european/id6742723534',
+            });
+          }}
+        >
+          <ExternalLink size={20} color="#FFFFFF" style={styles.contactIcon} />
+          <Text style={styles.contactButtonText}>Share App</Text>
+        </TouchableOpacity>
       </View>
       
       <View style={styles.section}>

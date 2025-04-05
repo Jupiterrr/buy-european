@@ -1,11 +1,11 @@
 interface CompanyInfo {
 	company: {
-		name: string;
+		name: string | null;
 		country: string | null;
 		countryCode: string | null;
 	} | null;
 	parentCompany: {
-		name: string;
+		name: string | null;
 		country: string | null;
 		countryCode: string | null;
 	} | null;
@@ -13,10 +13,11 @@ interface CompanyInfo {
 
 interface ProductInfo extends CompanyInfo {
 	code: string;
-	name: string;
+	name?: string;
 	imageUrl?: string;
 	base64Image?: string;
-	companyOrigin: 'eu' | 'non-eu' | 'unknown';
+	companyOrigin?: 'eu' | 'non-eu' | 'unknown';
+	categories_tags: string[];
 }
 
 interface LocalProductCompany {

@@ -53,7 +53,7 @@ app.post('/change-request', async (c) => {
 		return c.json({ message: 'Product saved successfully', data: { company} }, 200);
 	} catch (error) {
         console.error('Error saving product:', error);
-        return c.json({ error: { code: `internal_error ${error}`, message: 'Internal server error' } }, 500);
+        return c.json({ error: { code: `internal_error ${error}`, message: 'error in change-request' } }, 500);
     }
 });
 
@@ -74,7 +74,7 @@ app.post('/new-product', async (c) => {
         return c.json({ message: 'Product saved successfully', data: { product} }, 200);
     } catch (error) {
         console.error('Error saving product:', error);
-        return c.json({ error: { code: 'internal_error', message: 'Internal server error' } }, 500);
+        return c.json({ error: { code: 'internal_error', message: 'Error saving product' } }, 500);
     }
 });
 
@@ -95,6 +95,27 @@ async function fetchProductFromLocalDb(c, code: string) {
 		return null;
 	}
 }
+
+app.get('/get-alternatives', async (c) => {
+	try {
+		const code:string | null = c.req.query('code') || null;
+		if (code == null) {
+			return c.json([]);
+		}
+		const productInfo = await getProduct(code, c);
+
+
+		const url = `https://world.openfoodfacts.org/api/v2/search?categories_tags=${encodeURIComponent(productInfo.compared_to_category)}&fields=code`;
+		const response = await fetch(url);
+		const data:any = await response.json();
+		return c.json(
+			data.products.filter((product: any) => !product.code.endsWith(code)).map((product:any) => product.code)
+		  );
+	}
+	catch (e) {
+		return c.json({'error': e});
+	}
+});
 
 app.get('/local-product', async(c) => {
 	const code = c.req.query('code');
@@ -118,38 +139,54 @@ app.get('/product', async (c) => {
 		const productInfo = await getProduct(code, c);
 
 		if (productInfo.error) {
-			return c.json(productInfo, 400);
+			throw(`Product Info Error ${productInfo} ${productInfo.error}`);
 		}
 
-		const companyInfo = await lookupCompanyV2(c.env, { name: productInfo.brands, tag: productInfo.brands_tags[0] });
+		const brandTag = Array.isArray(productInfo.brands_tags) && productInfo.brands_tags.length > 0
+		? productInfo.brands_tags[0]
+		: productInfo.brands;
 
-		const companyOrigin = getCompanyOrigin(companyInfo.company.isoCountryCode, companyInfo.parentCompany?.isoCountryCode);
+		let companyInfo;
+		let companyOrigin;
+		if (brandTag && typeof brandTag === 'string' && brandTag.trim() !== '') {
+			companyInfo = await lookupCompanyV2(c.env, {
+				name: productInfo.brands ?? brandTag, // fallback just in case
+				tag: brandTag
+			});
+		
+			
+		}
+		
+		if (companyInfo) {
+			companyOrigin = getCompanyOrigin(companyInfo.company.isoCountryCode, companyInfo.parentCompany?.isoCountryCode);
+		}
 
 		return c.json({
 			data: {
 				code: code,
-				name: productInfo.product_name,
-				imageUrl: productInfo.image_front_url,
-				base64Image: productInfo.base_64_image,
+				name: productInfo?.product_name,
+				imageUrl: productInfo?.image_front_url,
+				base64Image: productInfo?.base_64_image,
 				company: {
-					name: companyInfo.company.name,
-					country: (companyInfo.company.isoCountryCode && countries.getName(companyInfo.company.isoCountryCode, 'en')) ?? null,
-					countryCode: companyInfo.company.isoCountryCode,
+					name: companyInfo?.company.name || null,
+					country: (companyInfo?.company?.isoCountryCode && countries?.getName(companyInfo.company.isoCountryCode, 'en')) ?? null,
+					countryCode: companyInfo?.company?.isoCountryCode || null,
 				},
-				parentCompany: companyInfo.parentCompany
+				parentCompany: companyInfo?.parentCompany
 					? {
-							name: companyInfo.parentCompany.name,
+							name: companyInfo?.parentCompany?.name,
 							country:
-								(companyInfo.parentCompany.isoCountryCode && countries.getName(companyInfo.parentCompany.isoCountryCode, 'en')) ?? null,
-							countryCode: companyInfo.parentCompany.isoCountryCode,
+								(companyInfo?.parentCompany?.isoCountryCode && countries?.getName(companyInfo.parentCompany.isoCountryCode, 'en')) ?? null,
+							countryCode: companyInfo?.parentCompany?.isoCountryCode,
 					  }
 					: null,
 				companyOrigin,
+				categories_tags: productInfo?.categories_tags,
 			},
 		} satisfies ProductInfoResponse);
 	} catch (error) {
 		console.error(error);
-		return c.json({ error: { code: 'internal_error', message: 'Internal server error' } }, 500);
+		return c.json({ error: { code: 'internal_error', message: `error in /product ${error}` } }, 500);
 	}
 });
 
@@ -240,39 +277,69 @@ async function getProduct(code: string, c: any) {
 		});
 		return (await response.json()) as any;
 	}
+	
+	async function fetchOpenProductsFactsProduct(code: string) {
+		const url = `https://world.openproductsfacts.org/api/v3/product/${encodeURIComponent(code)}.json`;
+		const response = await fetch(url, {
+			headers: {
+				'User-Agent': `Buy European - API`,
+			},
+		});
+		return (await response.json()) as any;
+	}
+
+	async function fetchOpenPetFoodFactsProduct(code: string) {
+		const url = `https://world.openpetfoodfacts.org/api/v3/product/${encodeURIComponent(code)}.json`;
+		const response = await fetch(url, {
+			headers: {
+				'User-Agent': `Buy European - API`,
+			},
+		});
+		return (await response.json()) as any;
+	}
 
 	try {
-		const [foodProduct, beautyProduct] = await Promise.all([fetchOpenFoodFactsProduct(code), fetchOpenBeautyFactsProduct(code)]);
-		const localProduct = await fetchProductFromLocalDb(c, code);
+		const [foodProduct, beautyProduct, productProduct, petFoodProduct] = await Promise.all([fetchOpenFoodFactsProduct(code), fetchOpenBeautyFactsProduct(code), fetchOpenProductsFactsProduct(code), fetchOpenPetFoodFactsProduct(code)]);
+	const localProduct = await fetchProductFromLocalDb(c, code);
 
-		let product = foodProduct;
-		if (product.status === 'failure') {
-			product = beautyProduct;
-		}
-		
+	let product = foodProduct;
+	if (product.status === 'failure') {
+		product = beautyProduct;
+	}
+	if (product.status === 'failure') {
+		product = productProduct;
+	}
+	
+	if (product.status === 'failure') {
+		product = petFoodProduct;
+	}
+	
 
-		// const { country, origin } = getCountryFromEAN(code) || { country: null, origin: null };
+	// const { country, origin } = getCountryFromEAN(code) || { country: null, origin: null };
 
-		if (product.status === 'failure' && localProduct == null) {
-			console.log('off rq error', product);
-			if (product.result.id === 'product_not_found' || product.result.id === 'product_found_with_a_different_product_type') {
-				return { error: { code: 'not_found', message: 'Product not found' } };
-			} else {
-				return { error: { code: 'internal_error', message: 'Error fetching product from API' } };
-			}
+	if (product.status === 'failure' && localProduct == null) {
+		console.log('off rq error', product);
+		if (product.result.id === 'product_not_found' || product.result.id === 'product_found_with_a_different_product_type') {
+			return { error: { code: 'not_found', message: 'Product not found' } };
 		} else {
-			const p = product.product;
-			return {
-				product_name: localProduct?.name ?? p?.product_name,
-				brands: localProduct?.data?.company?.name ?? p?.brands,
-				brands_tags: localProduct?.data?.company?.name != null ? [localProduct?.data?.company?.name] : p?.brands_tags,
-				image_front_url: p?.image_front_url, // TODO: how to do it with base64
-				base_64_image: localProduct?.data?.base64image,
-			};
+			return { error: { code: 'internal_error', message: 'Error fetching product from API' } };
 		}
+	} else {
+		const p = product.product;
+		return {
+			product_name: localProduct?.name ?? p?.product_name,
+			brands: localProduct?.data?.company?.name ?? p?.brands,
+			brands_tags: localProduct?.data?.company?.name != null ? [localProduct?.data?.company?.name] : p?.brands_tags,
+			image_front_url: p?.image_front_url, // TODO: how to do it with base64
+			base_64_image: localProduct?.data?.base64image,
+			categories_tags: p?.categories_tags,
+			compared_to_category: p?.compared_to_category,
+		};
+	}
 	} catch (error) {
 		return { error: { code: 'internal_error', message: 'Error fetching product from API' } };
 	}
+
 }
 
 // async function getCompany(env: Env, name: string, companyTag: string): Promise<CompanyInfoV2> {

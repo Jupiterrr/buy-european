@@ -285,7 +285,7 @@ export default function EditCompanyScreen() {
         
         // Navigate back after Snackbar disappears
         router.back();
-      }, 3000); // Hide Snackbar and navigate back after 3 seconds
+      }, 1000); // Hide Snackbar and navigate back after 3 seconds
     };
 
   return (
@@ -413,7 +413,7 @@ export default function EditCompanyScreen() {
         onDismiss={() => setSnackbarVisible(false)}
         style={styles.snackbar}
       >
-       Changes are saved and will soon be published!
+       Saved and will be reviewed.
       </Snackbar>
     </View>
   );

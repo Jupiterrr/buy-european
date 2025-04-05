@@ -270,8 +270,8 @@ export async function lookupCompanyV2(env: Env, { name, tag }: { name: string; t
       },
       parentCompany: parentCompany
         ? {
-            name: parentCompany.company_name,
-            isoCountryCode: parentCompany.country_code,
+            name: parentCompany?.company_name,
+            isoCountryCode: parentCompany?.country_code,
           }
         : null,
     };
@@ -283,7 +283,7 @@ export async function lookupCompanyV2(env: Env, { name, tag }: { name: string; t
 
   // 3.a Save parent company info to db
   let parentCompanyTag: string | undefined;
-  if (companyInfo.parentCompany) {
+  if (companyInfo?.parentCompany) {
     parentCompanyTag = toCompanyTag(companyInfo.parentCompany.name);
     await upsertCompany(env, {
       name: companyInfo.parentCompany.name,
