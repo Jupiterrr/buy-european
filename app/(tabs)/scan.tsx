@@ -4,13 +4,36 @@ import { ScanLine } from "lucide-react-native";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import CustomButton from "@/components/Button";
 import { rootStore } from "@/lib/rootStore";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { askForFeedback, askForFeedbackInit, FeedbackModal, FeedbackModalRef } from "../functions/ask_for_feedback";
+
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const router = useRouter();
   const scanned = useRef(false);
+
+
+  const modalRef = useRef<FeedbackModalRef>(null);
+
+  // Init global function once
+  askForFeedbackInit(() => modalRef.current?.show());
+
+  useEffect(() => {
+    const checkLaunchCount = async () => {
+      const launches = parseInt(await AsyncStorage.getItem('launchCount') || '0');
+      const newLaunchCount = launches + 1;
+      await AsyncStorage.setItem('launchCount', newLaunchCount.toString());
+
+      if (newLaunchCount === 7) {
+        askForFeedback(); // show prompt after 7 launches
+      }
+    };
+
+    checkLaunchCount();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -125,6 +148,8 @@ export default function ScanScreen() {
           </View>
         </View>
       )}
+
+      <FeedbackModal ref={modalRef} />
     </View>
   );
 }
