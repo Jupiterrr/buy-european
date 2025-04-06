@@ -77,6 +77,57 @@ class ProductStore {
     }
   }
 
+  async fetchAlternatives(code: string) {
+    
+    try {
+      const url = new URL(`${this.API_BASE}/get-alternatives`);
+      url.searchParams.set("code", code);
+
+      console.log("fetching alternatives", url.toString());
+      const rq = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const response:any = (await rq.json());
+
+      console.log('response', response);
+
+      if (response.error) {
+        console.error("api error", response);
+        return [];
+      } else {
+      
+
+        return response;
+
+        // TODO:
+        // Cache the alternatives
+        // Set the datatypes
+      }
+    } catch (error) {
+      console.error("catch error", error);
+      return [];
+    }
+  }
+
+  async getAlternativeProduct(code: string) {
+    const url = new URL(`${this.API_BASE}/product`);
+      url.searchParams.set("code", code);
+
+      console.log("fetching product", url.toString());
+      const rq = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const response = (await rq.json()) as ProductInfoResponse;
+      return response;
+  }
+
   async fetchProduct(code: string) {
     if (!this.updated && this.currentLoadingCode === code && this.error === null) {
       return;

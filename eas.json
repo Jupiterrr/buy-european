@@ -5,8 +5,14 @@
           "distribution": "store"
         },
         "android": {
-        "image": "latest"
-      }
+          "image": "latest"
+        }
+      },
+      "preview": {
+        "android": {
+          "image": "latest",
+          "buildType": "apk"
+        }
       }
     }
   }

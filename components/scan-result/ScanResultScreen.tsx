@@ -15,14 +15,25 @@ import { observer } from "mobx-react-lite";
 
 export const ScanResultScreen = observer(() => {
   const product = rootStore.productStore.product;
+  const [alternatives, setAlternatives] = React.useState<any>(null); // ✅ use state
 
   useFocusEffect(
     React.useCallback(() => {
       if (product?.code) {
         rootStore.productStore.fetchProduct(product.code);
+        if (product?.companyOrigin !== "eu") {
+          rootStore.productStore.fetchAlternatives(product.code).then((result) => {
+            setAlternatives(result ?? []); // ✅ triggers re-render
+          });
+        }
+        
       }
     }, [product?.code])
   );
+
+  function capitalizeFirst(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 
   return (
     <View style={styles.container}>
@@ -127,6 +138,95 @@ export const ScanResultScreen = observer(() => {
             .join(", ")}
         />
         <InfoSectionDivider /> */}
+
+
+        {/* ALTERNATIVES */}
+        {(product?.companyOrigin !== "eu") &&
+        <>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "bold",
+              paddingHorizontal: 24,
+              marginTop: 24,
+              marginBottom: 12,
+            }}
+          >
+            European Alternatives
+          </Text>
+
+          <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 16 }}
+          >
+          {alternatives != null && alternatives?.length === 0  && ( 
+            <View
+            style={{
+              width: Dimensions.get("window").width - 32, // minus paddings
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <View style={styles.alternativeStateContainer}>
+              <Text style={styles.altStateEmoji}>😕</Text>
+              <Text style={styles.altStateText}>No European alternatives found.</Text>
+            </View>
+          </View>
+          )}
+
+          {alternatives === null && (
+          <View
+          style={{
+            width: Dimensions.get("window").width - 32,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          >
+          <View style={styles.alternativeStateContainer}>
+            <ActivityIndicator size="small" color="#888" />
+            <Text style={styles.altStateText}>Looking for alternatives...</Text>
+          </View>
+          </View>
+          )}
+
+          {alternatives?.map((alt: any, index: number) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => {
+                rootStore.productStore.fetchProduct(alt.code).then(() => {
+                  setAlternatives([]); // clear old alternatives
+                  rootStore.productStore.fetchAlternatives(alt.code).then((result) => {
+                    setAlternatives(result);
+                  });
+                });
+              }}
+              style={{
+                width: 140,
+                marginRight: 16,
+                backgroundColor: "white",
+                borderRadius: 12,
+                padding: 8,
+              }}
+            >
+              <Image
+                source={{ uri: alt.image_front_url }}
+                style={{ width: "100%", height: 100, borderRadius: 8, backgroundColor: "#e2e8f0" }}
+                resizeMode="cover"
+              />
+              <Text style={{ fontWeight: "bold", fontSize: 14, marginTop: 8 }} numberOfLines={2}>
+                {alt.product_name || "Unnamed"}
+              </Text>
+              <Text style={{ fontSize: 12, color: "#666" }} numberOfLines={1}>
+                {capitalizeFirst(alt.brands_tags != null && alt.brands_tags.length > 0 ? alt.brands_tags.at(-1) : alt.brands)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+          </ScrollView>
+        </>
+        }
+        
+
 
         <Text
           style={{
@@ -383,6 +483,20 @@ const styles = StyleSheet.create({
     color: "#333333",
     marginLeft: 12,
     flex: 1,
+  },
+  alternativeStateContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+  },
+  altStateText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+  },
+  altStateEmoji: {
+    fontSize: 28,
   },
 });
 

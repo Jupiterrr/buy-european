@@ -1,10 +1,11 @@
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { changeRequestsTable, companyTable, parentCompanyTable } from './db/schema';
-import { eq, or } from 'drizzle-orm';
+import { eq, inArray, or } from 'drizzle-orm';
 import { getDb } from './db/schema';
 import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
+import { europeanCountries } from './isEuropeanCountry';
 
 export interface CompanyInfoV2 {
   company: {
@@ -250,6 +251,20 @@ export async function updateCountryCode(
   } catch(e) {
     return 'Error: ' + e;
   }
+}
+
+export async function getAllEuropeanCompanies(env: Env) {
+  const db = getDb(env);
+
+  const companies = await db
+    .select({
+      name: companyTable.company_name,
+      isoCountryCode: companyTable.country_code,
+    })
+    .from(companyTable)
+    .where(inArray(companyTable.country_code, europeanCountries));
+
+  return companies.map((company) => company.name);
 }
 
 export async function lookupCompanyV2(env: Env, { name, tag }: { name: string; tag: string }): Promise<CompanyInfoV2> {

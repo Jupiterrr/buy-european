@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import * as countries from 'i18n-iso-countries';
 import countryDataEn from 'i18n-iso-countries/langs/en.json';
-import { detectAbusiveText, detectValidCompany, getCompanyEntry, lookupCompanyGemini, lookupCompanyV2, updateCountryCode } from './company-lookup';
+import { detectAbusiveText, detectValidCompany, getAllEuropeanCompanies, getCompanyEntry, lookupCompanyGemini, lookupCompanyV2, updateCountryCode } from './company-lookup';
 import { getProductByEan, saveChangeRequest, saveProductInDb } from './products-update';
 import { getCompanyOrigin } from './isEuropeanCountry';
 
@@ -96,26 +96,58 @@ async function fetchProductFromLocalDb(c, code: string) {
 	}
 }
 
+
 app.get('/get-alternatives', async (c) => {
 	try {
-		const code:string | null = c.req.query('code') || null;
+		const code: string | null = c.req.query('code') || null;
+
 		if (code == null) {
-			return c.json([]);
+			return c.json(await getAllEuropeanCompanies(c.env));
 		}
+
+
 		const productInfo = await getProduct(code, c);
 
+		const allowedCompanies = ["Nestlé", "Unilever", "Danone"]; // Customize as needed
+		const comparedCategory = encodeURIComponent(productInfo.compared_to_category);
+		let page = 1;
+		let allAlternatives: string[] = [];
 
-		const url = `https://world.openfoodfacts.org/api/v2/search?categories_tags=${encodeURIComponent(productInfo.compared_to_category)}&fields=code`;
-		const response = await fetch(url);
-		const data:any = await response.json();
-		return c.json(
-			data.products.filter((product: any) => !product.code.endsWith(code)).map((product:any) => product.code)
-		  );
-	}
-	catch (e) {
-		return c.json({'error': e});
+		while (allAlternatives.length < 5 && page <= 5) { // Cap to avoid infinite loops
+			const url = `https://world.openfoodfacts.org/api/v2/search?categories_tags=${comparedCategory}&fields=code,brands&page=${page}`;
+			
+			const response = await fetch(url);
+			const data: any = await response.json();
+
+			if (!data.products || data.products.length === 0) break;
+
+			const filteredCodes = data.products
+				.filter((product: any) => {
+					if (!product.code || product.code === code) return false;
+					if (!product.brands) return false;
+
+					const productBrands = product.brands.split(',').map((b: any) => b.trim());
+					return productBrands.some((brand: any) => allowedCompanies.includes(brand));
+				})
+				.map((product: any) => product.code);
+
+			allAlternatives.push(...filteredCodes);
+			page++; // Go to next page if not enough results
+		}
+
+		// Return only the first 5 alternatives
+		// Call getProduct for each code and return full product info
+		const uniqueCodes = [...new Set(allAlternatives)]; // Remove duplicates, limit to 5 with .slice(0, 5)
+		const detailedProducts = (
+			await Promise.all(uniqueCodes.map(code => getProduct(code, c)))
+		  ).filter(p => !p?.error);
+
+		return c.json(detailedProducts);
+	} catch (e) {
+		return c.json({ 'error': e });
 	}
 });
+
 
 app.get('/local-product', async(c) => {
 	const code = c.req.query('code');
@@ -327,6 +359,7 @@ async function getProduct(code: string, c: any) {
 	} else {
 		const p = product.product;
 		return {
+			code: code,
 			product_name: localProduct?.name ?? p?.product_name,
 			brands: localProduct?.data?.company?.name ?? p?.brands,
 			brands_tags: localProduct?.data?.company?.name != null ? [localProduct?.data?.company?.name] : p?.brands_tags,
