@@ -33,3 +33,7 @@ We welcome contributions to the app. Please feel free to submit a PR or open an 
 
 - This app is inspired by [Maple Scan](https://maplescan.ca/) an app for finding Canadian products
 - [Open Food Facts](https://world.openfoodfacts.org/) is a community-driven database of food products from around the world.
+
+## Build APK
+
+eas build -p android --profile preview

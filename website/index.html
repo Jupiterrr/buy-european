@@ -551,6 +551,45 @@
         display: inline-block;
         margin: 20px auto;
       }
+
+      .download-btn.apk {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #000;
+        border-radius: 8px;
+        padding: 10px 20px;
+        height: 60px;
+        text-decoration: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .download-btn.apk:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .apk-label {
+        font-size: 1rem;
+        font-weight: 500;
+        white-space: nowrap; /* Ensures one-line text */
+        color: #fff;
+        letter-spacing: 0.5px;
+      }
+
+      .download-buttons .download-btn {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .download-buttons .download-btn img {
+        max-height: 100%;
+        width: auto;
+      }
     </style>
   </head>
   <!-- Google tag (gtag.js) -->
@@ -588,6 +627,9 @@
               </a>
               <a href="https://play.google.com/store/apps/details?id=com.carsam.buyeuropean" class="download-btn android" title="Download on Google Play">
                 <img src="images/GetItOnGooglePlay.svg" alt="Download on Google Play">
+              </a>
+              <a href="downloads/buy-european.apk" class="download-btn apk" title="Download APK" download>
+                <span class="apk-label">⬇ Download APK</span>
               </a>
             </div>
         </div>
@@ -715,6 +757,9 @@
           </a>
           <a href="https://play.google.com/store/apps/details?id=com.carsam.buyeuropean" class="download-btn android" title="Download on Google Play">
             <img src="images/GetItOnGooglePlay.svg" alt="Download on Google Play">
+          </a>
+          <a href="downloads/buy-european.apk" class="download-btn apk" title="Download APK" download>
+            <span class="apk-label">⬇ Download APK</span>
           </a>
         </div>
       </section>
