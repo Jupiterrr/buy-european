@@ -47,6 +47,12 @@ export const newPoductTable = sqliteTable('new_product_requests', {
 	status: text().$type<'draft' | 'submitted' | 'accepted' | 'declined'>().notNull(),
 });
 
+export const confirmationTable = sqliteTable('confirmations', {
+	// open food fact company tag
+	code: text().primaryKey(),
+	confirmations: text(),
+});
+
 export const changeRequestsTable = sqliteTable('change_requests', {
 	// open food fact company tag
 	data: text().notNull(),

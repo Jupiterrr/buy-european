@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Dimensions,
   Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,7 +16,10 @@ import { observer } from "mobx-react-lite";
 
 export const ScanResultScreen = observer(() => {
   const product = rootStore.productStore.product;
-  const [alternatives, setAlternatives] = React.useState<any>(null); // ✅ use state
+  const [alternatives, setAlternatives] = React.useState<any>(null);
+  const [confirmations, setConfirmations] = React.useState<string[] | null>(null);
+  const [ip, setIp] = React.useState<string | null>(null);
+  const neededConfirmations:number = 5;
 
   useFocusEffect(
     React.useCallback(() => {
@@ -23,10 +27,18 @@ export const ScanResultScreen = observer(() => {
         rootStore.productStore.fetchProduct(product.code);
         if (product?.companyOrigin !== "eu") {
           rootStore.productStore.fetchAlternatives(product.code).then((result) => {
-            setAlternatives(result ?? []); // ✅ triggers re-render
+            setAlternatives(result ?? []);
           });
         }
+
+        fetch('https://api64.ipify.org?format=json').then((response) => {
+          response.json().then((data:any) => setIp(data.ip));
+        });
         
+        // fetch confirmations
+        rootStore.productStore.getConfirmations(product.code).then((result) => {
+          setConfirmations(result ?? []);
+        })
       }
     }, [product?.code])
   );
@@ -89,9 +101,8 @@ export const ScanResultScreen = observer(() => {
         <InfoSectionDivider />
         <InfoSection
           label="Made by European company"
-          value={<MadeInEuValue madeInEu={product?.companyOrigin} />}
+          value={<MadeInEuValue madeInEu={product?.companyOrigin}/>}
           isBad={product?.companyOrigin !== "eu"}
-          // description={`Made by ${companyInfo?.company || "Unknown"}`}
         />
         <InfoSectionDivider />
 
@@ -119,7 +130,7 @@ export const ScanResultScreen = observer(() => {
               label="Parent Company"
               value={
                 <CompanyDescription
-                  name={product.parentCompany.name}
+                  name={product.parentCompany.name ?? ''}
                   location={product.parentCompany.country ?? ''}
                 />
               }
@@ -225,7 +236,81 @@ export const ScanResultScreen = observer(() => {
           </ScrollView>
         </>
         }
-        
+
+        {(confirmations != null && ip != null) &&
+        <View
+          style={{
+            padding: 15,
+            margin: 15,
+            borderRadius: 10,
+            backgroundColor: (confirmations?.length ?? 0) < neededConfirmations ? "white" : "#c9dcc0" 
+          }}
+        >
+          
+          {((confirmations?.length ?? 0) < neededConfirmations && !confirmations?.includes(ip)) && 
+          <>
+          <Text style={{ fontSize: 14, fontWeight: "bold", marginBottom: 8 }}>
+            Is all the information above correct?
+          </Text>
+          <View style={{ flexDirection: "row", gap: 12, marginBottom: 8, }}>
+           
+            <TouchableOpacity
+              onPress={async () => {
+                if (product?.code != null && ip != null) {
+                  rootStore.productStore.addConfirmations(product.code, ip);
+                  setConfirmations([...confirmations, ip])
+                }
+                
+              }}
+              style={{
+                flex: 1,
+                backgroundColor: "#c9dcc0",
+                paddingVertical: 12,
+                borderRadius: 8,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ fontWeight: "bold", color: "#201E1E" }}>✔️  Yes, it's correct</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  if ((confirmations?.length ?? 0) < neededConfirmations) {
+                    router.push({
+                      pathname: "/edit",
+                      params: {
+                        data: JSON.stringify({ product, isNew: false }),
+                      },
+                    });
+                    // TODO: set confirmations to 0 after change
+                    // TODO: save IPs of confirmation or save on the phone which products the user already confirmed
+                  }
+                  else {
+                    // seems like actually it should be right, since users already confirmed it
+                    Linking.openURL(`mailto:buy-european@googlegroups.com?subject=Error in ${product?.code}`);
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  backgroundColor: "#d0bdba",
+                  paddingVertical: 12,
+                  borderRadius: 8,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontWeight: "bold", color: "#201E1E" }}>✏️  Edit</Text>
+              </TouchableOpacity>
+            </View>
+            </>
+          }
+
+          {(confirmations?.length ?? 0) > 0 && 
+            <Text style={{ fontSize: 12, color: "#666666"}}>
+              {(confirmations?.length ?? 0)} {confirmations?.length > 1 ? 'people have': 'person has'} confirmed this product’s information.
+            </Text>
+            }
+
+          </View>
+        }
 
 
         <Text
@@ -241,13 +326,13 @@ export const ScanResultScreen = observer(() => {
           Always refer to the labels on the packaging for the most accurate information.
         </Text>
         <TouchableOpacity onPress={() => {
-          console.log("product", product);
-              router.push({
-                pathname: "/edit",
-                params: {
-                  data: JSON.stringify({'product': product, 'isNew': false}),
-                },
-        });}}>
+          router.push({
+            pathname: "/edit",
+            params: {
+              data: JSON.stringify({'product': product, 'isNew': false}),
+            },
+          });
+        }}>
       
         <Text
         style={{
@@ -521,8 +606,8 @@ function InfoSection({
         backgroundColor: isBad ? "#fecaca" : undefined,
       }}
     >
-      <View
-        style={{
+        <View
+          style={{
           flexDirection: "row",
           flexWrap: "wrap",
           alignItems: "flex-start",

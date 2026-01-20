@@ -113,6 +113,91 @@ class ProductStore {
     }
   }
 
+  async getConfirmations(code: string) {
+    
+    try {
+      const url = new URL(`${this.API_BASE}/get-confirmations`);
+      url.searchParams.set("code", code);
+
+      const rq = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const response:any = (await rq.json());
+
+      if (response.error) {
+        console.error("api error", response);
+        return [];
+      } 
+  
+      return response;
+      
+    } catch (error) {
+      console.error("catch error", error);
+      return [];
+    }
+  }
+  
+  async addConfirmations(code: string, ip:string) {
+    
+    try {
+      const url = new URL(`${this.API_BASE}/add-confirmations`);
+      url.searchParams.set("code", code);
+      url.searchParams.set("ip",ip);
+
+      const rq = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const response:any = (await rq.json());
+
+      if (response.error) {
+        console.error("api error", response);
+        return [];
+      } 
+  
+      return response;
+      
+    } catch (error) {
+      console.error("catch error", error);
+      return [];
+    }
+  }
+  
+  async clearConfirmations(code: string) {
+    
+    try {
+      const url = new URL(`${this.API_BASE}/clear-confirmations`);
+      url.searchParams.set("code", code);
+
+      const rq = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const response:any = (await rq.json());
+
+      if (response.error) {
+        console.error("api error", response);
+        return [];
+      } 
+  
+      return response;
+      
+    } catch (error) {
+      console.error("catch error", error);
+      return [];
+    }
+  }
+
   async getAlternativeProduct(code: string) {
     const url = new URL(`${this.API_BASE}/product`);
       url.searchParams.set("code", code);

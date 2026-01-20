@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import * as countries from 'i18n-iso-countries';
 import countryDataEn from 'i18n-iso-countries/langs/en.json';
 import { detectAbusiveText, detectValidCompany, getAllEuropeanCompanies, getCompanyEntry, lookupCompanyGemini, lookupCompanyV2, updateCountryCode } from './company-lookup';
-import { getProductByEan, saveChangeRequest, saveProductInDb } from './products-update';
+import { addConfirmation, clearConfirmations, getConfirmations, getProductByEan, saveChangeRequest, saveProductInDb } from './products-update';
 import { getCompanyOrigin } from './isEuropeanCountry';
 
 countries.registerLocale(countryDataEn);
@@ -24,7 +24,7 @@ app.post('/change-request', async (c) => {
 
 		if (companyName == null || companyName.trim() == '' || companyName == 'N/A') {
 			// do not save if company is not given
-			return;
+			return c.json('Parameters are missing');
 		}
 
 		const validCompany = await detectValidCompany(c.env, changeRequestData.company);
@@ -374,6 +374,58 @@ async function getProduct(code: string, c: any) {
 	}
 
 }
+
+// ###############################
+// ### Confirmation functions ###
+// ###############################
+
+
+app.get('/get-confirmations', async (c) => {
+	const code = c.req.query('code');
+	if (!code) {
+		return c.json({ error: 'Code parameter is required' }, 400);
+	}
+
+	let confirmations = await getConfirmations(c.env, code);
+	return c.json(confirmations);
+});
+
+app.get('/add-confirmations', async (c) => {
+	try {
+		const code = c.req.query('code');
+		const ip_address = c.req.query('ip');
+		if (!code || !ip_address) {
+			return c.json({ error: 'Code and ip_address parameter is required' }, 400);
+		}
+
+		await addConfirmation(c.env, code, ip_address);
+		return c.json(true);
+	}
+	catch(e) {
+		return c.json(false);
+	}
+});
+
+
+app.get('/clear-confirmations', async (c) => {
+	try {
+		const code = c.req.query('code');
+		if (!code) {
+			return c.json({ error: 'Code parameter is required' }, 400);
+		}
+
+		await clearConfirmations(c.env, code);
+		return c.json(true);
+	}
+	catch(e) {
+		return c.json(false);
+	}
+});
+
+
+// ###############################
+// ### Other ###
+// ###############################
 
 // async function getCompany(env: Env, name: string, companyTag: string): Promise<CompanyInfoV2> {
 // 	// Caching:

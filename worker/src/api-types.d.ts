@@ -18,6 +18,7 @@ interface ProductInfo extends CompanyInfo {
 	base64Image?: string;
 	companyOrigin?: 'eu' | 'non-eu' | 'unknown';
 	categories_tags: string[];
+	confirmations?: number;
 }
 
 interface LocalProductCompany {

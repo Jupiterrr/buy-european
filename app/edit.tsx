@@ -248,6 +248,8 @@ export default function EditCompanyScreen() {
           'ip_address': data.ip,
         });
       }
+
+      rootStore.productStore.clearConfirmations(product.code);
     }
     
     if (product.code != null && ((productName != null && product.name != productName && productName != '' && productName != 'N/A') || (companyName != null && companyName != '' && product.company.name != companyName) || (base64Image != null))) {

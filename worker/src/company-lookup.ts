@@ -232,6 +232,9 @@ export async function updateCountryCode(
             isoCountryCode: parentCompanyData.company.isoCountryCode,
             parentCompanyTag: undefined,
           });
+
+          // ⏳ Wait a short time to ensure DB consistency
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       }
     }

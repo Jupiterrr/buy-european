@@ -42,6 +42,7 @@ export let europeanCountries = [
 	'ES',  // Spain
 	'SE',  // Sweden
 	'CH',  // Switzerland
+	'CHE',  // Switzerland
 	'UA',  // Ukraine
 	'GB',  // United Kingdom
 	'VA',  // Vatican City

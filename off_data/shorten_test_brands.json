@@ -1,0 +1,101 @@
+[
+    {
+        "brands_tag": "carrefour",
+        "name": "Carrefour",
+        "count": 18682,
+        "origin": "France",
+        "origin_is_eu": true,
+        "brand_name": "Carrefour",
+        "parent_company_origin": null,
+        "parent_company_origin_is_eu": null,
+        "parentCompanyName": null
+    },
+    {
+        "brands_tag": "bonarea",
+        "name": "Bonarea",
+        "count": 11337,
+        "origin": "Spain",
+        "origin_is_eu": true,
+        "brand_name": "Bonarea",
+        "parent_company_origin": null,
+        "parent_company_origin_is_eu": null,
+        "parentCompanyName": null
+    },
+    {
+        "brands_tag": "coop",
+        "name": "Coop",
+        "count": 11269,
+        "origin": "Switzerland",
+        "origin_is_eu": false,
+        "brand_name": "Coop Group",
+        "parent_company_origin": null,
+        "parent_company_origin_is_eu": null,
+        "parentCompanyName": null
+    },
+    {
+        "brands_tag": "lidl",
+        "name": "Lidl",
+        "count": 10975,
+        "origin": "Germany",
+        "origin_is_eu": true,
+        "brand_name": "Lidl Stiftung & Co. KG",
+        "parent_company_origin": "Germany",
+        "parent_company_origin_is_eu": true,
+        "parentCompanyName": "Schwarz Gruppe"
+    },
+    {
+        "brands_tag": "auchan",
+        "name": "Auchan",
+        "count": 9916,
+        "origin": "France",
+        "origin_is_eu": true,
+        "brand_name": "Auchan",
+        "parent_company_origin": "France",
+        "parent_company_origin_is_eu": true,
+        "parentCompanyName": "Mulliez Family"
+    },
+    {
+        "brands_tag": "hacendado",
+        "name": "Hacendado",
+        "count": 9210,
+        "origin": "Spain",
+        "origin_is_eu": true,
+        "brand_name": "Mercadona",
+        "parent_company_origin": null,
+        "parent_company_origin_is_eu": null,
+        "parentCompanyName": null
+    },
+    {
+        "brands_tag": "tesco",
+        "name": "Tesco",
+        "count": 8627,
+        "origin": "United Kingdom",
+        "origin_is_eu": false,
+        "brand_name": "Tesco PLC",
+        "parent_company_origin": null,
+        "parent_company_origin_is_eu": null,
+        "parentCompanyName": null
+    },
+    {
+        "brands_tag": "delhaize",
+        "name": "Delhaize",
+        "count": 8593,
+        "origin": null,
+        "origin_is_eu": null,
+        "brand_name": "Delhaize Group (now part of Ahold Delhaize)",
+        "parent_company_origin": null,
+        "parent_company_origin_is_eu": null,
+        "parentCompanyName": "Ahold Delhaize"
+    },
+    {
+        "brands_tag": "u",
+        "name": "U",
+        "count": 8163,
+        "origin": "Germany",
+        "origin_is_eu": true,
+        "brand_name": "U-Bahn GmbH",
+        "parent_company_origin": null,
+        "parent_company_origin_is_eu": null,
+        "parentCompanyName": null
+    }
+]

@@ -112,7 +112,7 @@ export default function AboutScreen() {
         <Text style={styles.footerText}>Buy European © 2025</Text>
         <TouchableOpacity 
           style={styles.privacyLink}
-          onPress={() => Linking.openURL('https://drive.google.com/file/d/1qqlubS33ZvgFQXVepW4A8g1a0u0Cgqw5/view?usp=sharing')}
+          onPress={() => Linking.openURL('https://buy-european-app.com/privacy')}
         >
           <Text style={styles.privacyLinkText}>Privacy Policy</Text>
           <ExternalLink size={16} color="#0052B4" style={styles.linkIcon} />
