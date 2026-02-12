@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ScrollView } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { Stack, useRouter, useLocalSearchParams } from "expo-router";
 import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
 import { rootStore } from "@/lib/rootStore";
-import { Snackbar } from 'react-native-paper';
 import * as ImageManipulator from 'expo-image-manipulator';
+import { useTranslation } from "react-i18next";
 
 const countries = [
   { label: "Afghanistan", value: "AF" },
@@ -148,6 +147,7 @@ const countries = [
 
 
 export default function EditCompanyScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams();
 
@@ -170,7 +170,7 @@ export default function EditCompanyScreen() {
     // Request permission to access media library
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission Denied", "You need to grant permission to access photos.");
+      Alert.alert(t("edit.permissionDeniedTitle"), t("edit.permissionDeniedBody"));
       return;
     }
 
@@ -291,195 +291,228 @@ export default function EditCompanyScreen() {
     };
 
   return (
-    <View style={{ flex: 1, position: "relative" }}>
+    <View style={styles.screen}>
+    <Stack.Screen
+      options={{
+        title: isNew ? t("common.addProduct") : t("headers.editCompanyInformation"),
+        headerBackTitleVisible: false,
+      }}
+    />
 
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
+        <View style={styles.heroCard}>
+          <Text style={styles.heroTitle}>{isNew ? t("common.addProduct") : t("headers.editCompanyInformation")}</Text>
+          <Text style={styles.heroCode}>{product?.code}</Text>
+        </View>
 
-      {(!imageUri && !base64Image) && (
-      <>
-      {/* Image  */}
-      <View style={styles.uploadBox}>
-      <Text style={styles.title}>Upload an Image</Text>
+        <View style={styles.formCard}>
+          <View style={styles.uploadBox}>
+            <Text style={styles.title}>{t("edit.uploadImage")}</Text>
+            {(imageUri || base64Image) && (
+              <View style={styles.imageContainer}>
+                <Image source={{ uri: imageUri ?? base64Image ?? undefined }} style={styles.imagePreview} />
+              </View>
+            )}
+            <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+              <AntDesign name="upload" size={20} color="white" style={styles.icon} />
+              <Text style={styles.uploadButtonText}>{t("edit.chooseImage")}</Text>
+            </TouchableOpacity>
+          </View>
 
-      {/* Upload Button */}
-      <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-        <AntDesign name="upload" size={20} color="white" style={styles.icon} />
-        <Text style={styles.uploadButtonText}>Choose Image</Text>
-      </TouchableOpacity>
-      </View>
-      </>
-      )}
-   
+          {/* Product Name */}
+          <Text style={styles.label}>{t("edit.productName")}</Text>
+          <TextInput
+            style={styles.input}
+            value={productName}
+            onChangeText={setProductName}
+          />
+          {/* Company Name */}
+          <Text style={styles.label}>{t("edit.companyName")}</Text>
+          <TextInput
+            style={styles.input}
+            value={companyName}
+            onChangeText={setCompanyName}
+          />
 
-    {/* Display Selected Image */}
-    {imageUri && (
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: imageUri }} style={styles.imagePreview} />
-      </View>
-    )}
-   
-    {/* Display Selected Image */}
-    {base64Image && !imageUri && (
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: base64Image }} style={styles.imagePreview} />
-      </View>
-    )}
-
-      {/* Product Name */}
-      <Text style={styles.label}>Product Name</Text>
-      <TextInput
-        style={styles.input}
-        value={productName}
-        onChangeText={setProductName}
-        />
-      {/* Company Name */}
-      <Text style={styles.label}>Company Name</Text>
-      <TextInput
-        style={styles.input}
-        value={companyName}
-        onChangeText={setCompanyName}
-      />
-
-{/* Company Country */}
-    {!isNew && <>
-        <Text style={styles.label}>Company Country</Text>
-          <Dropdown
-          // TODO: initial value
-              style={[styles.dropdown, isFocusCompanyCountry && { borderColor: 'blue' }]}
+          {/* Company Country */}
+          {!isNew && <>
+            <Text style={styles.label}>{t("edit.companyCountry")}</Text>
+            <Dropdown
+              // TODO: initial value
+              style={[styles.dropdown, isFocusCompanyCountry && { borderColor: '#0052B4' }]}
               placeholderStyle={styles.placeholderStyle}
               selectedTextStyle={styles.selectedTextStyle}
               inputSearchStyle={styles.inputSearchStyle}
               iconStyle={styles.iconStyle}
-              autoScroll={false} 
+              autoScroll={false}
               data={countries}
               search={false}
               maxHeight={300}
               labelField="label"
               valueField="value"
-              placeholder={!isFocusCompanyCountry ? 'Select country' : '...'}
-              searchPlaceholder="Search..."
+              placeholder={!isFocusCompanyCountry ? t("edit.selectCountry") : '...'}
+              searchPlaceholder={t("edit.search")}
               value={companyCountry}
+              onFocus={() => setIsFocusCompanyCountry(true)}
+              onBlur={() => setIsFocusCompanyCountry(false)}
               onChange={item => {
                 setCompanyCountry(item.value);
+                setIsFocusCompanyCountry(false);
               }}
             />
-    </>}
-      {/* Parent Company Name */}
-      {!isNew && <>
-      <Text style={styles.label}>Parent Company</Text>
-      <TextInput
-        style={styles.input}
-        value={parentCompany}
-        onChangeText={setParentCompany}
-      />
-      </>}
+          </>}
+          {/* Parent Company Name */}
+          {!isNew && <>
+            <Text style={styles.label}>{t("edit.parentCompany")}</Text>
+            <TextInput
+              style={styles.input}
+              value={parentCompany}
+              onChangeText={setParentCompany}
+            />
+          </>}
 
-      {/* Parent Company Country */}
-      {!isNew && <>
-      <Text style={styles.label}>Parent Company Country</Text>
-      <Dropdown
-      // TODO: initial value
-          style={[styles.dropdown, isFocusParentCompanyCountry && { borderColor: 'blue' }]}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          inputSearchStyle={styles.inputSearchStyle}
-          search={false}
-          iconStyle={styles.iconStyle}
-          data={countries}
-          maxHeight={300}
-          labelField="label"
-          valueField="value"
-          placeholder={!isFocusParentCompanyCountry ? 'Select country' : '...'}
-          searchPlaceholder="Search..."
-          value={parentCompanyCountry}
-          onFocus={() => setIsFocusParentCompanyCountry(true)}
-          onBlur={() => setIsFocusParentCompanyCountry(false)}
-          onChange={item => {
-            setParentCompanyCountry(item.value);
-            setIsFocusParentCompanyCountry(false);
-          }}
-        />
-</>}
-      {/* Save Button */}
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>Save</Text>
-      </TouchableOpacity>
-
-    </View>
+          {/* Parent Company Country */}
+          {!isNew && <>
+            <Text style={styles.label}>{t("edit.parentCompanyCountry")}</Text>
+            <Dropdown
+              // TODO: initial value
+              style={[styles.dropdown, isFocusParentCompanyCountry && { borderColor: '#0052B4' }]}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              search={false}
+              iconStyle={styles.iconStyle}
+              data={countries}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder={!isFocusParentCompanyCountry ? t("edit.selectCountry") : '...'}
+              searchPlaceholder={t("edit.search")}
+              value={parentCompanyCountry}
+              onFocus={() => setIsFocusParentCompanyCountry(true)}
+              onBlur={() => setIsFocusParentCompanyCountry(false)}
+              onChange={item => {
+                setParentCompanyCountry(item.value);
+                setIsFocusParentCompanyCountry(false);
+              }}
+            />
+          </>}
+          {/* Save Button */}
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>{t("edit.save")}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </ScrollView>
 
-    {/* Snackbar - Now Positioned Above Everything */}
-    <Snackbar
-        visible={snackbarVisible}
-        onDismiss={() => setSnackbarVisible(false)}
+    {snackbarVisible && (
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => setSnackbarVisible(false)}
         style={styles.snackbar}
       >
-       Saved and will be reviewed.
-      </Snackbar>
+        <Text style={styles.snackbarText}>{t("edit.savedAndReviewed")}</Text>
+      </TouchableOpacity>
+    )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    position: "relative",
+    backgroundColor: "#EEF3FB",
+  },
   scrollContainer: {
     flexGrow: 1,
-    paddingBottom: 50, // Ensure enough space at bottom
+    paddingBottom: 36,
   },
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#F5F5F5",
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  heroCard: {
+    backgroundColor: "#0052B4",
+    borderRadius: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+    marginBottom: 14,
+  },
+  heroTitle: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  heroCode: {
+    color: "#D6E4FA",
+    fontSize: 13,
+    marginTop: 4,
+  },
+  formCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#DCE5F5",
+    padding: 14,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 20,
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 12,
     textAlign: "center",
+    color: "#1D2F4D",
   },
   dropdown: {
     height: 50,
-    borderColor: 'gray',
-    borderWidth: 0.5,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    marginBottom: 15,
+    borderColor: '#C9D4E8',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 14,
+    backgroundColor: "#FFFFFF",
   },
   label: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 5,
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 6,
+    color: "#253B5E",
   },
   input: {
-    height: 40,
+    height: 48,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 15,
+    borderColor: "#C9D4E8",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    marginBottom: 14,
     backgroundColor: "white",
   },
   saveButton: {
     backgroundColor: "#0052B4",
-    padding: 12,
-    borderRadius: 8,
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 8,
+    shadowColor: "#003A80",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   saveButtonText: {
     color: "white",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
   placeholderStyle: {
-    fontSize: 16,
+    fontSize: 15,
+    color: "#6C7991",
   },
-  image2: {
-    position: "relative",
-    height: "100%",
-},
   selectedTextStyle: {
-    fontSize: 16,
+    fontSize: 15,
+    color: "#1F3352",
   },
   iconStyle: {
     width: 20,
@@ -492,73 +525,57 @@ const styles = StyleSheet.create({
     left: 10,
     right: 10,
     borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+  snackbarText: {
+    color: "white",
+    textAlign: "center",
   },
   inputSearchStyle: {
     height: 40,
-    fontSize: 16,
+    fontSize: 15,
   },
   icon: {
     marginRight: 5,
   },
-
-  base64Container: {
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  base64Text: {
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  uploadSection: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
   uploadBox: {
-    padding: 20,
-    backgroundColor: "white",
-    borderRadius: 10,
+    padding: 14,
+    backgroundColor: "#F7FAFF",
+    borderRadius: 12,
     alignItems: "center",
-    shadowRadius: 5,
     borderWidth: 1,
-    borderColor: "#ddd",
-    marginBottom: 20,
+    borderColor: "#D7E3F8",
+    marginBottom: 14,
   },
 
   uploadButton: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#0052B4",
-    paddingVertical: 12,
+    paddingVertical: 11,
     paddingHorizontal: 20,
     borderRadius: 30,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 3,
   },
   uploadButtonText: {
     color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 15,
+    fontWeight: "700",
     marginLeft: 10,
   },
   imageContainer: {
-    marginTop: 20,
+    width: "100%",
+    marginBottom: 12,
     borderRadius: 10,
     overflow: "hidden",
   },
   imagePreview: {
     height: 220,
-    resizeMode: "contain",
+    resizeMode: "cover",
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#CCD8EB",
     backgroundColor: "#fff",
-    marginBottom: 20,
   },
 
 });
-

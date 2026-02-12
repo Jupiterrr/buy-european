@@ -13,8 +13,10 @@ import {
 import { router, useFocusEffect } from "expo-router";
 import { rootStore } from "@/lib/rootStore";
 import { observer } from "mobx-react-lite";
+import { useTranslation } from "react-i18next";
 
 export const ScanResultScreen = observer(() => {
+  const { t } = useTranslation();
   const product = rootStore.productStore.product;
   const [alternatives, setAlternatives] = React.useState<any>(null);
   const [confirmations, setConfirmations] = React.useState<string[] | null>(null);
@@ -100,18 +102,18 @@ export const ScanResultScreen = observer(() => {
         /> */}
         <InfoSectionDivider />
         <InfoSection
-          label="Made by European company"
+          label={t("scanResult.madeByEuropeanCompany")}
           value={<MadeInEuValue madeInEu={product?.companyOrigin}/>}
           isBad={product?.companyOrigin !== "eu"}
         />
         <InfoSectionDivider />
 
         <InfoSection
-          label="Company"
+          label={t("scanResult.company")}
           value={
             <CompanyDescription
-              name={product?.company?.name || "Unknown"}
-              location={product?.company?.country || "Unknown"}
+              name={product?.company?.name || t("common.unknown")}
+              location={product?.company?.country || t("common.unknown")}
             />
           }
         />
@@ -127,7 +129,7 @@ export const ScanResultScreen = observer(() => {
             <InfoSectionDivider />
 
             <InfoSection
-              label="Parent Company"
+              label={t("scanResult.parentCompany")}
               value={
                 <CompanyDescription
                   name={product.parentCompany.name ?? ''}
@@ -163,7 +165,7 @@ export const ScanResultScreen = observer(() => {
               marginBottom: 12,
             }}
           >
-            European Alternatives
+            {t("scanResult.europeanAlternatives")}
           </Text>
 
           <ScrollView
@@ -181,7 +183,7 @@ export const ScanResultScreen = observer(() => {
           >
             <View style={styles.alternativeStateContainer}>
               <Text style={styles.altStateEmoji}>😕</Text>
-              <Text style={styles.altStateText}>No European alternatives found.</Text>
+              <Text style={styles.altStateText}>{t("scanResult.noEuropeanAlternatives")}</Text>
             </View>
           </View>
           )}
@@ -196,7 +198,7 @@ export const ScanResultScreen = observer(() => {
           >
           <View style={styles.alternativeStateContainer}>
             <ActivityIndicator size="small" color="#888" />
-            <Text style={styles.altStateText}>Looking for alternatives...</Text>
+            <Text style={styles.altStateText}>{t("scanResult.lookingForAlternatives")}</Text>
           </View>
           </View>
           )}
@@ -226,7 +228,7 @@ export const ScanResultScreen = observer(() => {
                 resizeMode="cover"
               />
               <Text style={{ fontWeight: "bold", fontSize: 14, marginTop: 8 }} numberOfLines={2}>
-                {alt.product_name || "Unnamed"}
+                {alt.product_name || t("scanResult.unnamed")}
               </Text>
               <Text style={{ fontSize: 12, color: "#666" }} numberOfLines={1}>
                 {capitalizeFirst(alt.brands_tags != null && alt.brands_tags.length > 0 ? alt.brands_tags.at(-1) : alt.brands)}
@@ -250,7 +252,7 @@ export const ScanResultScreen = observer(() => {
           {((confirmations?.length ?? 0) < neededConfirmations && !confirmations?.includes(ip)) && 
           <>
           <Text style={{ fontSize: 14, fontWeight: "bold", marginBottom: 8 }}>
-            Is all the information above correct?
+            {t("scanResult.confirmPrompt")}
           </Text>
           <View style={{ flexDirection: "row", gap: 12, marginBottom: 8, }}>
            
@@ -269,8 +271,8 @@ export const ScanResultScreen = observer(() => {
                 borderRadius: 8,
                 alignItems: "center",
               }}
-            >
-              <Text style={{ fontWeight: "bold", color: "#201E1E" }}>✔️  Yes, it's correct</Text>
+              >
+              <Text style={{ fontWeight: "bold", color: "#201E1E" }}>{t("scanResult.confirmYes")}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
@@ -286,7 +288,7 @@ export const ScanResultScreen = observer(() => {
                   }
                   else {
                     // seems like actually it should be right, since users already confirmed it
-                    Linking.openURL(`mailto:buy-european@googlegroups.com?subject=Error in ${product?.code}`);
+                    Linking.openURL(`mailto:buy-european@googlegroups.com?subject=${t("scanResult.errorInSubjectPrefix")} ${product?.code}`);
                   }
                 }}
                 style={{
@@ -297,7 +299,7 @@ export const ScanResultScreen = observer(() => {
                   alignItems: "center",
                 }}
               >
-                <Text style={{ fontWeight: "bold", color: "#201E1E" }}>✏️  Edit</Text>
+                <Text style={{ fontWeight: "bold", color: "#201E1E" }}>{t("scanResult.confirmEdit")}</Text>
               </TouchableOpacity>
             </View>
             </>
@@ -305,7 +307,9 @@ export const ScanResultScreen = observer(() => {
 
           {(confirmations?.length ?? 0) > 0 && 
             <Text style={{ fontSize: 12, color: "#666666"}}>
-              {(confirmations?.length ?? 0)} {confirmations?.length > 1 ? 'people have': 'person has'} confirmed this product’s information.
+              {confirmations?.length === 1
+                ? t("scanResult.confirmedByPerson", { count: confirmations?.length ?? 0 })
+                : t("scanResult.confirmedByPeople", { count: confirmations?.length ?? 0 })}
             </Text>
             }
 
@@ -323,7 +327,7 @@ export const ScanResultScreen = observer(() => {
             textAlign: "center",
           }}
         >
-          Always refer to the labels on the packaging for the most accurate information.
+          {t("scanResult.packagingDisclaimer")}
         </Text>
         <TouchableOpacity onPress={() => {
           router.push({
@@ -344,7 +348,7 @@ export const ScanResultScreen = observer(() => {
           textAlign: "center",
           textDecorationLine: "underline",
         }}>
-          Found an error?
+          {t("scanResult.foundError")}
         </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -635,24 +639,26 @@ function CompanyDescription({ name, location }: { name: string; location: string
   );
 }
 
-function MadeInEuValue({ madeInEu }: { madeInEu: Product["companyOrigin"] }) {
+function MadeInEuValue({ madeInEu }: { madeInEu: "eu" | "unknown" | string | null | undefined }) {
+  const { t } = useTranslation();
+
   if (madeInEu === "unknown") {
     return (
       <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
         <Text style={{ fontSize: 18 }}>❓</Text>
-        <Text style={{ fontWeight: "bold" }}>Unknown</Text>
+        <Text style={{ fontWeight: "bold" }}>{t("common.unknown")}</Text>
       </View>
     );
   }
   return madeInEu === "eu" ? (
     <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
       <Text style={{ fontSize: 18 }}>🇪🇺</Text>
-      <Text style={{ fontWeight: "bold" }}>Yes</Text>
+      <Text style={{ fontWeight: "bold" }}>{t("common.yes")}</Text>
     </View>
   ) : (
     <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
       <Text style={{ fontSize: 18 }}>⛔</Text>
-      <Text style={{ fontWeight: "bold" }}>No</Text>
+      <Text style={{ fontWeight: "bold" }}>{t("common.no")}</Text>
     </View>
   );
 }

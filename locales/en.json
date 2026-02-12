@@ -1,0 +1,147 @@
+{
+  "common": {
+    "appName": "Buy European",
+    "shareApp": "Share App",
+    "emailUs": "Email Us",
+    "goBack": "Go back",
+    "addProduct": "Add product",
+    "error": "Error",
+    "unknown": "Unknown",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "tabs": {
+    "scan": "Scan",
+    "about": "About",
+    "search": "Search",
+    "test": "Test",
+    "edit": "Edit"
+  },
+  "headers": {
+    "scanProduct": "Scan Product",
+    "aboutBuyEuropean": "About Buy European",
+    "search": "Search",
+    "editCompanyInformation": "Edit Company Information"
+  },
+  "scan": {
+    "cameraPermissionTitle": "Camera permission",
+    "cameraPermissionBody": "Grant access to the camera to scan your product",
+    "allowCameraAccess": "Allow camera access",
+    "positionBarcode": "Position barcode within the frame",
+    "webDemoMode": "Web Demo Mode",
+    "webDemoHelp": "Camera scanning is not available on web. Try these sample products:",
+    "sampleCocaColaNonEu": "Coca-Cola (Non-EU)",
+    "samplePhilipsEu": "Philips Shaver (EU)",
+    "sampleCadburyNonEu": "Cadbury Chocolate (Non-EU)",
+    "sampleNutellaEu": "Nutella (EU)"
+  },
+  "product": {
+    "notFound": "Product not found"
+  },
+  "notFound": {
+    "title": "Oops!",
+    "message": "This screen does not exist.",
+    "goHome": "Go to home screen!"
+  },
+  "feedback": {
+    "appFeedbackSubject": "App Feedback",
+    "askTitle": "Do you like the app so far?",
+    "askPositive": "Yes! I love it",
+    "askNegative": "Not really",
+    "choiceTitle": "Awesome! Would you like to...",
+    "choiceReview": "Write a Review",
+    "choiceEmail": "Send us an Email"
+  },
+  "edit": {
+    "permissionDeniedTitle": "Permission Denied",
+    "permissionDeniedBody": "You need to grant permission to access photos.",
+    "uploadImage": "Upload an Image",
+    "chooseImage": "Choose Image",
+    "productName": "Product Name",
+    "companyName": "Company Name",
+    "companyCountry": "Company Country",
+    "parentCompany": "Parent Company",
+    "parentCompanyCountry": "Parent Company Country",
+    "selectCountry": "Select country",
+    "save": "Save",
+    "savedAndReviewed": "Saved and will be reviewed.",
+    "search": "Search..."
+  },
+  "scanResult": {
+    "madeByEuropeanCompany": "Made by European company",
+    "company": "Company",
+    "parentCompany": "Parent Company",
+    "europeanAlternatives": "European Alternatives",
+    "noEuropeanAlternatives": "No European alternatives found.",
+    "lookingForAlternatives": "Looking for alternatives...",
+    "unnamed": "Unnamed",
+    "confirmPrompt": "Is all the information above correct?",
+    "confirmYes": "Yes, it is correct",
+    "confirmEdit": "Edit",
+    "confirmedByPerson": "{{count}} person has confirmed this product information.",
+    "confirmedByPeople": "{{count}} people have confirmed this product information.",
+    "packagingDisclaimer": "Always refer to the labels on the packaging for the most accurate information.",
+    "foundError": "Found an error?",
+    "errorInSubjectPrefix": "Error in"
+  },
+  "test": {
+    "supportEuropeanProducts": "Support European Products",
+    "infoText": "Scan products to check if they are made in Europe or by European companies. Support local economies and make informed shopping decisions.",
+    "euProduct": "EU Product",
+    "nonEuProduct": "Non-EU Product",
+    "euSupportText": "Supporting European products helps strengthen our economy and preserves jobs within the EU."
+  },
+  "database": {
+    "badgeEu": "EU",
+    "badgeNonEu": "Non-EU",
+    "country": "Country: {{country}}",
+    "category": "Category: {{category}}",
+    "searchPlaceholder": "Search companies or countries...",
+    "filterByOrigin": "Filter by origin:",
+    "filterAll": "All",
+    "filterEuropean": "European",
+    "filterNonEuropean": "Non-European",
+    "empty": "No companies found matching your search."
+  },
+  "search": {
+    "title": "Search",
+    "description": "Search for a product by barcode or a company by name.",
+    "modeProduct": "Product",
+    "modeCompany": "Company",
+    "inputPlaceholderProduct": "Enter barcode (EAN)",
+    "inputPlaceholderCompany": "Enter company name",
+    "searchButton": "Search",
+    "enterQuery": "Please enter a search value.",
+    "noCompanyFound": "No company found for this query.",
+    "loading": "Searching...",
+    "companyResult": "Company Result",
+    "company": "Company",
+    "parentCompany": "Parent Company",
+    "country": "Country",
+    "fromEuropeanCompany": "From European company"
+  },
+  "about": {
+    "title": "About Buy European",
+    "shareTitle": "Share the App",
+    "shareBody": "Love using Buy European? Share it with your friends and family!",
+    "shareMessage": "Check out Buy European - the app that helps you find products made by European companies. Available now:\n\nAndroid: https://play.google.com/store/apps/details?id=com.carsam.buyeuropean\nApple: https://apps.apple.com/lt/app/buy-european/id6742723534",
+    "missionTitle": "Our Mission",
+    "missionBody": "Buy European is an initiative to help consumers make informed choices about the products they purchase. By identifying products made in Europe or by European companies, we aim to support local economies, reduce carbon footprints from long-distance shipping, and preserve European jobs and traditions.",
+    "howItWorksTitle": "How It Works",
+    "howItWorksBody": "Our app allows you to scan product barcodes to instantly check if a product is made in Europe or by a European company. We maintain a database of thousands of products and their parent companies, which is regularly updated to ensure accuracy.",
+    "howItWorksLead": "When you scan a product, we check our database and show you:",
+    "featureProductOrigin": "Product origin (European or non-European)",
+    "featureParentCompany": "Parent company information",
+    "featureHeadquarters": "Country of company headquarters",
+    "whyTitle": "Why Buy European?",
+    "whyLead": "Choosing European products helps:",
+    "whyLocalEconomies": "Support local economies and jobs",
+    "whyCarbon": "Reduce carbon emissions from long-distance shipping",
+    "whyTraditions": "Preserve European manufacturing traditions",
+    "whyStandards": "Ensure products meet EU quality and safety standards",
+    "contactTitle": "Contact Us",
+    "contactBody": "Have questions, suggestions, or want to report incorrect product information? We would love to hear from you!",
+    "privacyPolicy": "Privacy Policy",
+    "copyright": "Buy European © 2025"
+  }
+}

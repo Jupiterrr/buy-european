@@ -1,19 +1,26 @@
 {
-    "build": {
-      "production": {
-        "ios": {
-          "distribution": "store"
-        },
-        "android": {
-          "image": "latest"
-        }
+  "build": {
+    "production": {
+      "ios": {
+        "distribution": "store"
       },
-      "preview": {
-        "android": {
-          "image": "latest",
-          "buildType": "apk"
-        }
+      "android": {
+        "image": "latest"
+      }
+    },
+    "preview": {
+      "android": {
+        "image": "latest",
+        "buildType": "apk"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./buy-european-230c123c09c8.json",
+        "track": "production"
       }
     }
   }
-  
+}

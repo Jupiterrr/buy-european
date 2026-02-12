@@ -1,7 +1,10 @@
 import { View, Text, StyleSheet, ScrollView, Image, Linking, TouchableOpacity, Share } from 'react-native';
 import { ExternalLink, Mail, Flag, Heart } from 'lucide-react-native';
+import { useTranslation } from "react-i18next";
 
 export default function AboutScreen() {
+  const { t } = useTranslation();
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -10,111 +13,105 @@ export default function AboutScreen() {
           style={styles.headerImage}
         />
         <View style={styles.overlay}>
-          <Text style={styles.title}>About Buy European</Text>
+          <Text style={styles.title}>{t("about.title")}</Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Share the App</Text>
+        <Text style={styles.sectionTitle}>{t("about.shareTitle")}</Text>
         <Text style={styles.paragraph}>
-          Love using Buy European? Share it with your friends and family!
+          {t("about.shareBody")}
         </Text>
         <TouchableOpacity
           style={styles.contactButton}
           onPress={() => {
             Share.share({
-              message:
-                'Check out Buy European – the app that helps you find products made by European companies. Available now:\n\nAndroid: https://play.google.com/store/apps/details?id=com.carsam.buyeuropean\nApple: https://apps.apple.com/lt/app/buy-european/id6742723534',
+              message: t("about.shareMessage"),
             });
           }}
         >
           <ExternalLink size={20} color="#FFFFFF" style={styles.contactIcon} />
-          <Text style={styles.contactButtonText}>Share App</Text>
+          <Text style={styles.contactButtonText}>{t("common.shareApp")}</Text>
         </TouchableOpacity>
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Our Mission</Text>
+        <Text style={styles.sectionTitle}>{t("about.missionTitle")}</Text>
         <Text style={styles.paragraph}>
-          Buy European is an initiative to help consumers make informed choices about the products they purchase. 
-          By identifying products made in Europe or by European companies, we aim to support local economies, 
-          reduce carbon footprints from long-distance shipping, and preserve European jobs and traditions.
+          {t("about.missionBody")}
         </Text>
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>How It Works</Text>
+        <Text style={styles.sectionTitle}>{t("about.howItWorksTitle")}</Text>
         <Text style={styles.paragraph}>
-          Our app allows you to scan product barcodes to instantly check if a product is made in Europe 
-          or by a European company. We maintain a database of thousands of products and their parent companies, 
-          which is regularly updated to ensure accuracy.
+          {t("about.howItWorksBody")}
         </Text>
         <Text style={styles.paragraph}>
-          When you scan a product, we check our database and show you:
+          {t("about.howItWorksLead")}
         </Text>
         <View style={styles.featureList}>
           <View style={styles.featureItem}>
             <Flag size={20} color="#0052B4" style={styles.featureIcon} />
-            <Text style={styles.featureText}>Product origin (European or non-European)</Text>
+            <Text style={styles.featureText}>{t("about.featureProductOrigin")}</Text>
           </View>
           <View style={styles.featureItem}>
             <Flag size={20} color="#0052B4" style={styles.featureIcon} />
-            <Text style={styles.featureText}>Parent company information</Text>
+            <Text style={styles.featureText}>{t("about.featureParentCompany")}</Text>
           </View>
           <View style={styles.featureItem}>
             <Flag size={20} color="#0052B4" style={styles.featureIcon} />
-            <Text style={styles.featureText}>Country of company headquarters</Text>
+            <Text style={styles.featureText}>{t("about.featureHeadquarters")}</Text>
           </View>
         </View>
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Why Buy European?</Text>
+        <Text style={styles.sectionTitle}>{t("about.whyTitle")}</Text>
         <Text style={styles.paragraph}>
-          Choosing European products helps:
+          {t("about.whyLead")}
         </Text>
         <View style={styles.featureList}>
           <View style={styles.featureItem}>
             <Heart size={20} color="#0052B4" style={styles.featureIcon} />
-            <Text style={styles.featureText}>Support local economies and jobs</Text>
+            <Text style={styles.featureText}>{t("about.whyLocalEconomies")}</Text>
           </View>
           <View style={styles.featureItem}>
             <Heart size={20} color="#0052B4" style={styles.featureIcon} />
-            <Text style={styles.featureText}>Reduce carbon emissions from long-distance shipping</Text>
+            <Text style={styles.featureText}>{t("about.whyCarbon")}</Text>
           </View>
           <View style={styles.featureItem}>
             <Heart size={20} color="#0052B4" style={styles.featureIcon} />
-            <Text style={styles.featureText}>Preserve European manufacturing traditions</Text>
+            <Text style={styles.featureText}>{t("about.whyTraditions")}</Text>
           </View>
           <View style={styles.featureItem}>
             <Heart size={20} color="#0052B4" style={styles.featureIcon} />
-            <Text style={styles.featureText}>Ensure products meet EU quality and safety standards</Text>
+            <Text style={styles.featureText}>{t("about.whyStandards")}</Text>
           </View>
         </View>
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Contact Us</Text>
+        <Text style={styles.sectionTitle}>{t("about.contactTitle")}</Text>
         <Text style={styles.paragraph}>
-          Have questions, suggestions, or want to report incorrect product information? 
-          We'd love to hear from you!
+          {t("about.contactBody")}
         </Text>
         <TouchableOpacity 
           style={styles.contactButton}
           onPress={() => Linking.openURL('mailto:buy-european@googlegroups.com')}
         >
           <Mail size={20} color="#FFFFFF" style={styles.contactIcon} />
-          <Text style={styles.contactButtonText}>Email Us</Text>
+          <Text style={styles.contactButtonText}>{t("common.emailUs")}</Text>
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Buy European © 2025</Text>
+        <Text style={styles.footerText}>{t("about.copyright")}</Text>
         <TouchableOpacity 
           style={styles.privacyLink}
           onPress={() => Linking.openURL('https://buy-european-app.com/privacy')}
         >
-          <Text style={styles.privacyLinkText}>Privacy Policy</Text>
+          <Text style={styles.privacyLinkText}>{t("about.privacyPolicy")}</Text>
           <ExternalLink size={16} color="#0052B4" style={styles.linkIcon} />
         </TouchableOpacity>
       </View>

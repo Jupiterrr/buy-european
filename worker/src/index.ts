@@ -66,9 +66,14 @@ app.post('/new-product', async (c) => {
             return c.json({ error: { code: 'invalid_request', message: 'Missing required fields product' } }, 400);
         }
 
-		const isAbusive = await detectAbusiveText(c.env, JSON.stringify(body));
+		const moderationResult = await detectAbusiveText(c.env, JSON.stringify(body));
+		const isAbusive = moderationResult?.abusive === true;
+		if (isAbusive) {
+			return c.json({ error: { code: 'invalid_request', message: 'Product was flagged for review' } }, 400);
+		}
 
-		await saveProductInDb(c.env, product, isAbusive['abusive']);
+		// Save immediately as accepted when the content is not flagged.
+		await saveProductInDb(c.env, product, false);
         
 
         return c.json({ message: 'Product saved successfully', data: { product} }, 200);
@@ -86,7 +91,16 @@ async function fetchProductFromLocalDb(c, code: string) {
 
 		let product = await getProductByEan(c.env, code);
 		if (product) {
-			product.data = JSON.parse(product?.data ?? '');
+			if (typeof product.data === 'string' && product.data.trim() !== '') {
+				try {
+					product.data = JSON.parse(product.data);
+				} catch (e) {
+					console.error('Invalid local product data JSON', { code, e });
+					product.data = null;
+				}
+			} else {
+				product.data = null;
+			}
 		}
 		
 		return product
@@ -171,7 +185,13 @@ app.get('/product', async (c) => {
 		const productInfo = await getProduct(code, c);
 
 		if (productInfo.error) {
-			throw(`Product Info Error ${productInfo} ${productInfo.error}`);
+			const statusCode =
+				productInfo.error.code === 'not_found'
+					? 404
+					: productInfo.error.code === 'invalid_request'
+					? 400
+					: 500;
+			return c.json({ error: productInfo.error }, statusCode);
 		}
 
 		const brandTag = Array.isArray(productInfo.brands_tags) && productInfo.brands_tags.length > 0
@@ -181,12 +201,15 @@ app.get('/product', async (c) => {
 		let companyInfo;
 		let companyOrigin;
 		if (brandTag && typeof brandTag === 'string' && brandTag.trim() !== '') {
-			companyInfo = await lookupCompanyV2(c.env, {
-				name: productInfo.brands ?? brandTag, // fallback just in case
-				tag: brandTag
-			});
-		
-			
+			try {
+				companyInfo = await lookupCompanyV2(c.env, {
+					name: productInfo.brands ?? brandTag, // fallback just in case
+					tag: brandTag
+				});
+			} catch (companyError) {
+				// Product lookup must still succeed even if company enrichment fails.
+				console.error('company lookup failed in /product', { brandTag, companyError });
+			}
 		}
 		
 		if (companyInfo) {
@@ -349,13 +372,19 @@ async function getProduct(code: string, c: any) {
 
 	// const { country, origin } = getCountryFromEAN(code) || { country: null, origin: null };
 
-	if (product.status === 'failure' && localProduct == null) {
-		console.log('off rq error', product);
-		if (product.result.id === 'product_not_found' || product.result.id === 'product_found_with_a_different_product_type') {
-			return { error: { code: 'not_found', message: 'Product not found' } };
-		} else {
-			return { error: { code: 'internal_error', message: 'Error fetching product from API' } };
-		}
+		if (product.status === 'failure' && localProduct == null) {
+			console.log('off rq error', product);
+			const productResultId = product?.result?.id;
+			const statusVerbose = String(product?.status_verbose ?? '').toLowerCase();
+			if (
+				productResultId === 'product_not_found' ||
+				productResultId === 'product_found_with_a_different_product_type' ||
+				statusVerbose.includes('not found')
+			) {
+				return { error: { code: 'not_found', message: 'Product not found' } };
+			} else {
+				return { error: { code: 'internal_error', message: 'Error fetching product from API' } };
+			}
 	} else {
 		const p = product.product;
 		return {

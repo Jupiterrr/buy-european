@@ -1,7 +1,7 @@
 <html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buy European – Support Local Industries</title>
+    <title id="meta-title">Buy European - Support Local Industries</title>
     <!-- Include Swiper’s CSS from a CDN -->
     <!-- <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"> -->
   
@@ -17,11 +17,11 @@
     <link rel="manifest" href="site.webmanifest">
     
     <!-- Meta Description -->
-    <meta name="description" content="Scan any product and find out if it truly supports European businesses. Buy European makes it easy.">
+    <meta id="meta-description" name="description" content="Scan any product and find out if it truly supports European businesses. Buy European makes it easy.">
     
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="Buy European">
-    <meta property="og:description" content="Scan any product and find out if it truly supports European businesses. Buy European makes it easy.">
+    <meta id="og-title" property="og:title" content="Buy European">
+    <meta id="og-description" property="og:description" content="Scan any product and find out if it truly supports European businesses. Buy European makes it easy.">
     <meta property="og:image" content="https://buy-european-app.com/images/icon.png">
     <meta property="og:url" content="https://buy-european-app.com">
     <meta property="og:type" content="website">
@@ -128,6 +128,13 @@
         /* right: 20px; */
         /* top: 50%; */
         /* transform: translateY(-50%); */
+      }
+      .language-selector {
+        border: 1px solid #e0e0e0;
+        border-radius: 9999px;
+        padding: 6px 12px;
+        font-size: 0.9rem;
+        background: #fff;
       }
       
       /* -------------------------------
@@ -602,12 +609,19 @@
       <h1>Buy European</h1>
       <div style="flex: 1;"></div>
       <div style="display: flex; align-items: center; gap: 16px;">
-        <a href="https://github.com/Jupiterrr/buy-european" target="_blank" class="github-link" title="View the source code on GitHub">
+        <select id="language-select" class="language-selector" aria-label="Select language">
+          <option value="en">English</option>
+          <option value="de">Deutsch</option>
+          <option value="fr">Francais</option>
+          <option value="fi">Suomi</option>
+          <option value="es">Espanol</option>
+        </select>
+        <a href="https://github.com/Jupiterrr/buy-european" target="_blank" class="github-link" id="github-link" title="View the source code on GitHub">
           <svg height="24" width="24" viewBox="0 0 16 16" style="fill: currentColor; vertical-align: middle;">
             <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
           </svg>
         </a>
-        <a href="#download-app" class="download-nav">Download the App</a>
+        <a href="#download-app" class="download-nav" data-i18n="navDownload">Download the App</a>
       </div>
     </header>
     
@@ -617,8 +631,8 @@
       <section class="hero animate visible" data-animate="fadeInUp">
         <div class="hero-content">
           <div class="hero-text" id="download-app">
-            <h2>Easily Identify European-Made Products</h2>
-            <p>
+            <h2 data-i18n="heroTitle">Easily Identify European-Made Products</h2>
+            <p data-i18n="heroSubtitle">
                 Scan any product to instantly verify its origin and parent company.
             </p>
             <div class="download-buttons">
@@ -634,7 +648,7 @@
             </div>
         </div>
         <div class="hero-showcase">
-            <img src="screenshots/iced_tea_product.jpg" alt="Download on the App Store">
+            <img src="screenshots/iced_tea_product.jpg" id="hero-image" alt="Buy European app screenshot">
         </div>
       </section>
       
@@ -667,27 +681,27 @@
       
       <!-- Why Use Buy European – Feature Cards -->
       <section id="why-use" class="features-cards animate" data-animate="fadeInUp">
-        <h2>Why Use Buy European?</h2>
+        <h2 data-i18n="whyTitle">Why Use Buy European?</h2>
         <div class="cards-container">
           <div class="feature-card">
-            <h3>Make Informed Purchases</h3>
-            <p>Know exactly where your products come from.</p>
+            <h3 data-i18n="featureInformedTitle">Make Informed Purchases</h3>
+            <p data-i18n="featureInformedBody">Know exactly where your products come from.</p>
           </div>
           <div class="feature-card">
-            <h3>Full Transparency</h3>
-            <p>See the manufacturing country and parent company behind every product.</p>
+            <h3 data-i18n="featureTransparencyTitle">Full Transparency</h3>
+            <p data-i18n="featureTransparencyBody">See the manufacturing country and parent company behind every product.</p>
           </div>
           <div class="feature-card">
-            <h3>Support Locals</h3>
-            <p>Support local economies and jobs.</p>
+            <h3 data-i18n="featureLocalTitle">Support Locals</h3>
+            <p data-i18n="featureLocalBody">Support local economies and jobs.</p>
           </div>
           <div class="feature-card">
-            <h3>Quality</h3>
-            <p>Ensure products meet EU quality and safety standards.</p>
+            <h3 data-i18n="featureQualityTitle">Quality</h3>
+            <p data-i18n="featureQualityBody">Ensure products meet EU quality and safety standards.</p>
           </div>
           <div class="feature-card">
-            <h3>Sustainability</h3>
-            <p>Reduce carbon emissions from long-distance shipping.</p>
+            <h3 data-i18n="featureSustainabilityTitle">Sustainability</h3>
+            <p data-i18n="featureSustainabilityBody">Reduce carbon emissions from long-distance shipping.</p>
           </div>
           <!-- <div class="feature-card">
             <h3>European Bilingual Support</h3>
@@ -743,7 +757,7 @@
       
       <!-- Contributors Section -->
       <section id="contributors" class="contributors-section animate" data-animate="fadeInUp">
-        <h2 style="text-align: center;">Contributors</h2>
+        <h2 style="text-align: center;" data-i18n="contributorsTitle">Contributors</h2>
         <div class="contributors-grid">
             <a href="https://www.linkedin.com/in/griesheimer/" target="_blank"><img src="images/carstengriesheimer.jpeg" alt="Carsten Griesheimer"></a>
             <a href="https://www.linkedin.com/in/samira-huber/" target="_blank"><img src="images/samirahuber.jpg" alt="Setareh Aghel Manesh"></a></div>
@@ -767,23 +781,78 @@
       <!-- Contact Section -->
       <section id="contact" class="animate" data-animate="fadeInUp">
         <div style="text-align: center;">
-          <a href="mailto:buy-european@googlegroups.com" class="contact-btn">Contact Us</a>
+          <a href="mailto:buy-european@googlegroups.com" class="contact-btn" data-i18n="contactButton">Contact Us</a>
         </div>
       </section>
     </div></main>
     
     <!-- Footer -->
     <footer class="animate" data-animate="fadeInUp">
-      <p>© 2025 Buy European. All rights reserved. The source code is available on <a href="https://github.com/Jupiterrr/buy-european" target="_blank">GitHub</a></a>.</p>
+      <p>
+        <span data-i18n="footerPrefix">© 2025 Buy European. All rights reserved.</span>
+        <span data-i18n="footerSourceIntro">The source code is available on</span>
+        <a href="https://github.com/Jupiterrr/buy-european" target="_blank" data-i18n="footerGithub">GitHub</a>.
+      </p>
     </footer>
     
     <!-- ------------------------------------------------
          JavaScript for Animations & Swiper Carousel
     ------------------------------------------------ -->
     <!-- Include Swiper’s JS from a CDN -->
+    <script src="translations.js"></script>
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function() {
+        const supported = ["en", "de", "fr", "fi", "es"];
+        const params = new URLSearchParams(window.location.search);
+        const fromQuery = params.get("lang");
+        const fromStorage = localStorage.getItem("be-lang");
+        const browserLang = (navigator.language || "en").toLowerCase().split("-")[0];
+        const initialLang = [fromQuery, fromStorage, browserLang, "en"].find((lang) => supported.includes(lang));
+        const translations = window.BE_TRANSLATIONS?.index || {};
+        const select = document.getElementById("language-select");
+
+        function applyTranslations(lang) {
+          const dict = translations[lang] || translations.en || {};
+          document.documentElement.lang = lang;
+
+          const metaTitle = document.getElementById("meta-title");
+          const metaDescription = document.getElementById("meta-description");
+          const ogTitle = document.getElementById("og-title");
+          const ogDescription = document.getElementById("og-description");
+          const githubLink = document.getElementById("github-link");
+          const heroImage = document.getElementById("hero-image");
+
+          if (metaTitle && dict.metaTitle) {
+            metaTitle.textContent = dict.metaTitle;
+            document.title = dict.metaTitle;
+          }
+          if (metaDescription && dict.metaDescription) metaDescription.setAttribute("content", dict.metaDescription);
+          if (ogTitle && dict.metaTitle) ogTitle.setAttribute("content", dict.metaTitle);
+          if (ogDescription && dict.metaDescription) ogDescription.setAttribute("content", dict.metaDescription);
+          if (githubLink && dict.navGithubTitle) githubLink.setAttribute("title", dict.navGithubTitle);
+          if (heroImage && dict.heroImageAlt) heroImage.setAttribute("alt", dict.heroImageAlt);
+
+          document.querySelectorAll("[data-i18n]").forEach((el) => {
+            const key = el.getAttribute("data-i18n");
+            if (key && dict[key]) el.textContent = dict[key];
+          });
+        }
+
+        const activeLang = initialLang || "en";
+        if (select) {
+          select.value = activeLang;
+          select.addEventListener("change", (event) => {
+            const lang = event.target.value;
+            localStorage.setItem("be-lang", lang);
+            params.set("lang", lang);
+            const nextUrl = `${window.location.pathname}?${params.toString()}${window.location.hash}`;
+            window.history.replaceState({}, "", nextUrl);
+            applyTranslations(lang);
+          });
+        }
+        applyTranslations(activeLang);
+
         // -------------------------
         // 1) Intersection Observer (already in your code)
         // -------------------------
@@ -802,16 +871,18 @@
         // -------------------------
         // 2) Swiper for screenshots (already in your code)
         // -------------------------
-        const swiper = new Swiper(".mySwiper", {
-          slidesPerView: "auto",
-          loop: true,
-          speed: 2000,
-          autoplay: {
-            delay: 2500,
-            disableOnInteraction: false,
-          },
-          spaceBetween: 20,
-        });
+        if (window.Swiper && document.querySelector(".mySwiper")) {
+          new Swiper(".mySwiper", {
+            slidesPerView: "auto",
+            loop: true,
+            speed: 2000,
+            autoplay: {
+              delay: 2500,
+              disableOnInteraction: false,
+            },
+            spaceBetween: 20,
+          });
+        }
   
         
     });

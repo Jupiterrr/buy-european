@@ -1,14 +1,25 @@
 import { Tabs } from "expo-router";
 import { StyleSheet } from "react-native";
-import { ScanLine, Info, Chrome as Home, Database, LoaderPinwheelIcon, Rabbit } from "lucide-react-native";
+import { ScanLine, Info, Rabbit, Search } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
+  const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: '#0052B4', // EU blue
         tabBarInactiveTintColor: '#555555',
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            height: 60 + insets.bottom,
+            paddingBottom: insets.bottom,
+          },
+        ],
         tabBarLabelStyle: styles.tabBarLabel,
         headerStyle: styles.header,
         headerTintColor: '#FFFFFF',
@@ -18,47 +29,37 @@ export default function TabLayout() {
       <Tabs.Screen
         name="scan"
         options={{
-          title: 'Scan',
+          title: t("tabs.scan"),
           tabBarIcon: ({ color, size }) => <ScanLine size={size} color={color} />,
-          headerTitle: 'Scan Product',
+          headerTitle: t("headers.scanProduct"),
         }}
       />
+
+      <Tabs.Screen
+        name="search"
+        options={{
+          title: t("tabs.search"),
+          tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
+          headerTitle: t("headers.search"),
+        }}
+      />
+      
       <Tabs.Screen
         name="about"
         options={{
-          title: "About",
+          title: t("tabs.about"),
           tabBarIcon: ({ color, size }) => <Info size={size} color={color} />,
-          headerTitle: "About Buy European",
+          headerTitle: t("headers.aboutBuyEuropean"),
         }}
       />
+      
       <Tabs.Screen
         name="test"
         options={{
           href: __DEV__ ? undefined : null,
-          title: "Test",
+          title: t("tabs.test"),
           tabBarIcon: ({ color, size }) => <Rabbit size={size} color={color} />,
-          headerTitle: "Buy European",
-        }}
-      />
-      <Tabs.Screen
-        name="edit"
-        options={{
-          href: null,
-          title: "Edit",
-          tabBarIcon: ({ color, size }) => <Rabbit size={size} color={color} />,
-          headerTitle: "Edit Company Information",
-        }}
-      />
-      <Tabs.Screen
-        name="product"
-        options={{
-          href: null,
-          // title: "Product",
-          tabBarIcon: ({ color, size }) => <Rabbit size={size} color={color} />,
-          // headerTitle: "Buy European",
-          title: "",
-          headerTintColor: "black",
-          headerTransparent: true,
+          headerTitle: t("common.appName"),
         }}
       />
     </Tabs>

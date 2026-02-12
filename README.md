@@ -36,4 +36,21 @@ We welcome contributions to the app. Please feel free to submit a PR or open an 
 
 ## Build APK
 
-eas build -p android --profile preview
+Update versions in app.json first:
+- expo.version (user-facing)
+- android.versionCode (integer, must increase)
+- ios.buildNumber (must increase)
+
+npm install -g eas-cli
+eas login
+
+eas build -p android --profile production --clear-cache
+eas build -p ios --profile production --clear-cache
+
+eas submit -p android --latest
+eas submit -p ios --latest
+
+If store rejects because build numbers are reused, bump in app.json first:
+- expo.version (user-facing)
+- android.versionCode (integer, must increase)
+- ios.buildNumber (must increase)

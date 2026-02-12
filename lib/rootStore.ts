@@ -26,6 +26,21 @@ class ProductStore {
     makeAutoObservable(this);
   }
 
+  private normalizeProductError(error: ApiError): ApiError {
+    const message = String(error.message ?? "").toLowerCase();
+    if (
+      error.code === "internal_error" &&
+      (
+        message.includes("product info error") ||
+        message.includes("error fetching product from api") ||
+        message.includes("error in /product")
+      )
+    ) {
+      return { code: "not_found", message: "Product not found" };
+    }
+    return error;
+  }
+
   async makeChangeRequest(code: string, data: ChangeRequest) {
     try {
       this.updated = true;
@@ -198,6 +213,103 @@ class ProductStore {
     }
   }
 
+  async fetchCompany(name: string): Promise<CompanyInfo | null> {
+    try {
+      const COUNTRY_NAME_FALLBACKS: Record<string, string> = {
+        GB: "United Kingdom",
+        US: "United States",
+        DE: "Germany",
+        FR: "France",
+        FI: "Finland",
+        SE: "Sweden",
+        NL: "Netherlands",
+        BE: "Belgium",
+        IT: "Italy",
+        ES: "Spain",
+        DK: "Denmark",
+        NO: "Norway",
+        CH: "Switzerland",
+        IE: "Ireland",
+        AT: "Austria",
+        PL: "Poland",
+      };
+
+      const requestCompanyRow = async (companyName: string) => {
+        const url = new URL(`${this.API_BASE}/company_request`);
+        url.searchParams.set("name", companyName);
+
+        const rq = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        const rawResponse = await rq.text();
+        let response: any;
+        try {
+          response = JSON.parse(rawResponse);
+        } catch {
+          console.error("company lookup returned non-JSON response", {
+            status: rq.status,
+            body: rawResponse.slice(0, 200),
+          });
+          return null;
+        }
+
+        if (!rq.ok || response.error) {
+          console.error("company lookup error", response);
+          return null;
+        }
+
+        return response.data ?? null;
+      };
+
+      const toCountryName = (code: string | null | undefined) => {
+        if (!code) return null;
+        const normalized = code.trim().toUpperCase();
+        try {
+          if (typeof Intl !== "undefined" && typeof (Intl as any).DisplayNames === "function") {
+            const displayNames = new (Intl as any).DisplayNames(["en"], { type: "region" });
+            const regionName = displayNames.of(normalized);
+            if (regionName && regionName.toUpperCase() !== normalized) {
+              return regionName;
+            }
+          }
+        } catch {
+          // Fall through to return raw code if region display fails.
+        }
+        return COUNTRY_NAME_FALLBACKS[normalized] ?? normalized;
+      };
+
+      const companyRow = await requestCompanyRow(name);
+      if (!companyRow) {
+        return null;
+      }
+
+      const parentTag = companyRow.parent_company_tag as string | null | undefined;
+      const parentRow = parentTag ? await requestCompanyRow(parentTag) : null;
+
+      return {
+        company: {
+          name: companyRow.company_name ?? null,
+          countryCode: companyRow.country_code ?? null,
+          country: toCountryName(companyRow.country_code),
+        },
+        parentCompany: parentRow
+          ? {
+              name: parentRow.company_name ?? null,
+              countryCode: parentRow.country_code ?? null,
+              country: toCountryName(parentRow.country_code),
+            }
+          : null,
+      };
+    } catch (error) {
+      console.error("company lookup failed", error);
+      return null;
+    }
+  }
+
   async getAlternativeProduct(code: string) {
     const url = new URL(`${this.API_BASE}/product`);
       url.searchParams.set("code", code);
@@ -248,15 +360,30 @@ class ProductStore {
         },
       });
       // console.log("rq", rq.url);
-      const response = (await rq.json()) as ProductInfoResponse;
+      const rawResponse = await rq.text();
+      let response: ProductInfoResponse;
+      try {
+        response = JSON.parse(rawResponse) as ProductInfoResponse;
+      } catch {
+        if (rq.status === 404) {
+          setResult(null, { code: "not_found", message: "Product not found" });
+          return;
+        }
+        throw new Error(`Invalid /product response: ${rawResponse.slice(0, 200)}`);
+      }
 
       if (this.currentLoadingCode !== code) {
         return;
       }
 
       if (response.error) {
-        console.error("api error", response);
-        setResult(null, response.error);
+        const normalizedError = this.normalizeProductError(response.error);
+        if (normalizedError.code === "not_found") {
+          console.log("product not found", code);
+        } else {
+          console.error("api error", response);
+        }
+        setResult(null, normalizedError);
       } else {
         setResult(response.data, null);
       }

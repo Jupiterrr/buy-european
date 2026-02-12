@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ScanResultScreen } from "../components/scan-result/ScanResultScreen";
 import { rootStore } from "../lib/rootStore";
 import { observer } from "mobx-react-lite";
+import { useTranslation } from "react-i18next";
 
 const ProductScreen = observer(function ProductScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams();
   const code: string = typeof params.code === "string" ? params.code : params.code?.[0];
@@ -27,26 +29,29 @@ const ProductScreen = observer(function ProductScreen() {
     if (error.code === "not_found") {
       return (
         <View style={styles.container}>
-          <Text style={{ fontSize: 20, fontWeight: "bold" }}>Product not found</Text>
-          <Text style={{ fontSize: 16, color: "gray" }}>{code}</Text>
-          <View style={{ marginTop: 24 }}>
-            <Button title="Go back" onPress={() => router.dismissTo("/scan")} />
+          <View style={styles.notFoundCard}>
+            <Text style={styles.notFoundTitle}>{t("product.notFound")}</Text>
+            <Text style={styles.notFoundCode}>{code}</Text>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() =>
+                router.push({
+                  pathname: "/edit",
+                  params: {
+                    data: JSON.stringify({ product: { code: code }, isNew: true }),
+                  },
+                })
+              }
+            >
+              <Text style={styles.addButtonText}>{t("common.addProduct")}</Text>
+            </TouchableOpacity>
           </View>
-          <View style={{ marginTop: 24 }}>
-            <Button title="Add product" onPress={() => router.push({
-              pathname: "/edit",
-              params: {
-                data: JSON.stringify({'product': {'code': code,}, 'isNew': true}),
-              },
-            })} />
-          </View>
-          
         </View>
       );
     } else {
       return (
         <View style={styles.container}>
-          <Text style={{ fontSize: 20, fontWeight: "bold" }}>Error</Text>
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>{t("common.error")}</Text>
         </View>
       );
     }
@@ -79,6 +84,41 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 20,
+    backgroundColor: "#F2F5FA",
+  },
+  notFoundCard: {
+    width: "100%",
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    paddingVertical: 24,
+    paddingHorizontal: 18,
+    borderWidth: 1,
+    borderColor: "#DFE6F2",
+    alignItems: "center",
+  },
+  notFoundTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#1C2C46",
+    marginBottom: 8,
+  },
+  notFoundCode: {
+    fontSize: 15,
+    color: "#6B7485",
+    marginBottom: 20,
+  },
+  addButton: {
+    width: "100%",
+    backgroundColor: "#0052B4",
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
   },
 });
 

@@ -7,10 +7,12 @@ import { rootStore } from "@/lib/rootStore";
 import { useCallback, useEffect, useRef } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { askForFeedback, askForFeedbackInit, FeedbackModal, FeedbackModalRef } from "../functions/ask_for_feedback";
+import { askForFeedback, askForFeedbackInit, FeedbackModal, FeedbackModalRef } from "@/components/feedback/askForFeedback";
+import { useTranslation } from "react-i18next";
 
 
 export default function ScanScreen() {
+  const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
   const router = useRouter();
   const scanned = useRef(false);
@@ -60,12 +62,12 @@ export default function ScanScreen() {
       >
         <View style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <Text style={{ textAlign: "center", fontSize: 16, fontWeight: "bold" }}>
-            Camera permission
+            {t("scan.cameraPermissionTitle")}
           </Text>
           <Text style={{ textAlign: "center", fontSize: 14 }}>
-            Grant access to the camera to scan your product
+            {t("scan.cameraPermissionBody")}
           </Text>
-          <CustomButton onPress={requestPermission} title="Allow camera access" theme="primary" />
+          <CustomButton onPress={requestPermission} title={t("scan.allowCameraAccess")} theme="primary" />
         </View>
       </View>
     );
@@ -103,47 +105,47 @@ export default function ScanScreen() {
             <View style={styles.scanArea}>
               <ScanLine size={24} color="#FFFFFF" style={styles.scanIcon} />
             </View>
-            <Text style={styles.scanText}>Position barcode within the frame</Text>
+            <Text style={styles.scanText}>{t("scan.positionBarcode")}</Text>
           </View>
         </View>
       ) : (
         // Web fallback - show demo buttons
         <View style={styles.webDemo}>
-          <Text style={styles.webDemoTitle}>Web Demo Mode</Text>
+          <Text style={styles.webDemoTitle}>{t("scan.webDemoMode")}</Text>
           <Text style={styles.webDemoText}>
-            Camera scanning is not available on web. Try these sample products:
+            {t("scan.webDemoHelp")}
           </Text>
           <View style={styles.demoButtons}>
             <TouchableOpacity
               style={styles.demoButton}
               onPress={() => simulateScan("5449000000439")}
             >
-              <Text style={styles.demoButtonText}>Coca-Cola (Non-EU)</Text>
+              <Text style={styles.demoButtonText}>{t("scan.sampleCocaColaNonEu")}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.demoButton}
               onPress={() => simulateScan("8710447319239")}
             >
-              <Text style={styles.demoButtonText}>Philips Shaver (EU)</Text>
+              <Text style={styles.demoButtonText}>{t("scan.samplePhilipsEu")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.demoButton}
               onPress={() => simulateScan("5000112637922")}
             >
-              <Text style={styles.demoButtonText}>Cadbury Chocolate (Non-EU)</Text>
+              <Text style={styles.demoButtonText}>{t("scan.sampleCadburyNonEu")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.demoButton}
               onPress={() => simulateScan("3017620422003")}
             >
-              <Text style={styles.demoButtonText}>Nutella (EU)</Text>
+              <Text style={styles.demoButtonText}>{t("scan.sampleNutellaEu")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.demoButton}
               onPress={() => simulateScan("5449000000996")}
             >
-              <Text style={styles.demoButtonText}>Coca-Cola (Non-EU)</Text>
+              <Text style={styles.demoButtonText}>{t("scan.sampleCocaColaNonEu")}</Text>
             </TouchableOpacity>
           </View>
         </View>

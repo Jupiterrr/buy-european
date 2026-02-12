@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { Search, Filter, CircleCheck as CheckCircle, Circle as XCircle } from 'lucide-react-native';
+import { useTranslation } from "react-i18next";
 
 // Mock database of companies and their origins
 export const companiesDatabase = [
@@ -30,6 +31,7 @@ export const companiesDatabase = [
 type FilterOption = 'All' | 'EU' | 'Non-EU';
 
 export default function DatabaseScreen() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<FilterOption>('All');
   
@@ -48,17 +50,17 @@ export default function DatabaseScreen() {
         {item.origin === 'EU' ? (
           <View style={styles.originBadgeSmall}>
             <CheckCircle size={16} color="#FFFFFF" />
-            <Text style={styles.originTextSmall}>EU</Text>
+            <Text style={styles.originTextSmall}>{t("database.badgeEu")}</Text>
           </View>
         ) : (
           <View style={[styles.originBadgeSmall, styles.nonEuBadgeSmall]}>
             <XCircle size={16} color="#FFFFFF" />
-            <Text style={styles.originTextSmall}>Non-EU</Text>
+            <Text style={styles.originTextSmall}>{t("database.badgeNonEu")}</Text>
           </View>
         )}
       </View>
-      <Text style={styles.companyDetails}>Country: {item.country}</Text>
-      <Text style={styles.companyDetails}>Category: {item.category}</Text>
+      <Text style={styles.companyDetails}>{t("database.country", { country: item.country })}</Text>
+      <Text style={styles.companyDetails}>{t("database.category", { category: item.category })}</Text>
     </View>
   );
   
@@ -69,7 +71,7 @@ export default function DatabaseScreen() {
           <Search size={20} color="#666666" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search companies or countries..."
+            placeholder={t("database.searchPlaceholder")}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -78,14 +80,14 @@ export default function DatabaseScreen() {
       
       <View style={styles.filterContainer}>
         <Filter size={20} color="#0052B4" style={styles.filterIcon} />
-        <Text style={styles.filterLabel}>Filter by origin:</Text>
+        <Text style={styles.filterLabel}>{t("database.filterByOrigin")}</Text>
         <View style={styles.filterOptions}>
           <TouchableOpacity
             style={[styles.filterOption, filter === 'All' && styles.filterOptionActive]}
             onPress={() => setFilter('All')}
           >
             <Text style={[styles.filterOptionText, filter === 'All' && styles.filterOptionTextActive]}>
-              All
+              {t("database.filterAll")}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -93,7 +95,7 @@ export default function DatabaseScreen() {
             onPress={() => setFilter('EU')}
           >
             <Text style={[styles.filterOptionText, filter === 'EU' && styles.filterOptionTextActive]}>
-              European
+              {t("database.filterEuropean")}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -101,7 +103,7 @@ export default function DatabaseScreen() {
             onPress={() => setFilter('Non-EU')}
           >
             <Text style={[styles.filterOptionText, filter === 'Non-EU' && styles.filterOptionTextActive]}>
-              Non-European
+              {t("database.filterNonEuropean")}
             </Text>
           </TouchableOpacity>
         </View>
@@ -114,7 +116,7 @@ export default function DatabaseScreen() {
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No companies found matching your search.</Text>
+            <Text style={styles.emptyText}>{t("database.empty")}</Text>
           </View>
         }
       />

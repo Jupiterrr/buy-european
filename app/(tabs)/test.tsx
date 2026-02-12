@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
-import { ScanLine, ShoppingCart, Flag, Info } from "lucide-react-native";
-import { useEffect } from "react";
+import { Flag } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
 
   return (
@@ -16,15 +17,14 @@ export default function HomeScreen() {
           style={styles.headerImage}
         />
         <View style={styles.overlay}>
-          <Text style={styles.title}>Buy European</Text>
-          <Text style={styles.subtitle}>Support European Products</Text>
+          <Text style={styles.title}>{t("common.appName")}</Text>
+          <Text style={styles.subtitle}>{t("test.supportEuropeanProducts")}</Text>
         </View>
       </View>
 
       <View style={styles.infoContainer}>
         <Text style={styles.infoText}>
-          Scan products to check if they are made in Europe or by European companies. Support local
-          economies and make informed shopping decisions.
+          {t("test.infoText")}
         </Text>
       </View>
 
@@ -37,12 +37,28 @@ export default function HomeScreen() {
           </Text>
         </TouchableOpacity> */}
 
-        <TouchableOpacity style={styles.featureCard} onPress={() => router.push(`/product?code=4388840103942`)}>
-          <Text style={styles.featureTitle}>EU Product</Text>
+        <TouchableOpacity
+          style={styles.featureCard}
+          onPress={() =>
+            router.push({
+              pathname: "/product",
+              params: { code: "4388840103942" },
+            })
+          }
+        >
+          <Text style={styles.featureTitle}>{t("test.euProduct")}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.featureCard} onPress={() => router.push("/product?code=5449000000439")}>
-          <Text style={styles.featureTitle}>Non-EU Product</Text>
+        <TouchableOpacity
+          style={styles.featureCard}
+          onPress={() =>
+            router.push({
+              pathname: "/product",
+              params: { code: "5449000000439" },
+            })
+          }
+        >
+          <Text style={styles.featureTitle}>{t("test.nonEuProduct")}</Text>
         </TouchableOpacity>
 
         {/* <TouchableOpacity style={styles.featureCard} onPress={() => router.push("/about")}>
@@ -57,8 +73,7 @@ export default function HomeScreen() {
       <View style={styles.euContainer}>
         <Flag size={24} color="#0052B4" />
         <Text style={styles.euText}>
-          Supporting European products helps strengthen our economy and preserves jobs within the
-          EU.
+          {t("test.euSupportText")}
         </Text>
       </View>
     </ScrollView>

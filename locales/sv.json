@@ -1,0 +1,147 @@
+{
+  "common": {
+    "appName": "Buy European",
+    "shareApp": "Dela appen",
+    "emailUs": "Mejla oss",
+    "goBack": "Tillbaka",
+    "addProduct": "Lägg till produkt",
+    "error": "Fel",
+    "unknown": "Okänd",
+    "yes": "Ja",
+    "no": "Nej"
+  },
+  "tabs": {
+    "scan": "Skanna",
+    "about": "Om",
+    "search": "Sök",
+    "test": "Test",
+    "edit": "Redigera"
+  },
+  "headers": {
+    "scanProduct": "Skanna produkt",
+    "aboutBuyEuropean": "Om Buy European",
+    "search": "Sök",
+    "editCompanyInformation": "Redigera företagsinformation"
+  },
+  "scan": {
+    "cameraPermissionTitle": "Kamerabehörighet",
+    "cameraPermissionBody": "Tillåt kamerabehörighet för att skanna produkter",
+    "allowCameraAccess": "Tillåt kameraåtkomst",
+    "positionBarcode": "Placera streckkoden i ramen",
+    "webDemoMode": "Webbdemo",
+    "webDemoHelp": "Kameraskanning är inte tillgänglig på webben. Prova dessa exempelprodukter:",
+    "sampleCocaColaNonEu": "Coca-Cola (icke EU)",
+    "samplePhilipsEu": "Philips-rakapparat (EU)",
+    "sampleCadburyNonEu": "Cadbury-choklad (icke EU)",
+    "sampleNutellaEu": "Nutella (EU)"
+  },
+  "product": {
+    "notFound": "Produkten hittades inte"
+  },
+  "notFound": {
+    "title": "Hoppsan!",
+    "message": "Den här sidan finns inte.",
+    "goHome": "Gå till startsidan"
+  },
+  "feedback": {
+    "appFeedbackSubject": "Feedback om appen",
+    "askTitle": "Gillar du appen hittills?",
+    "askPositive": "Ja! Jag älskar den",
+    "askNegative": "Inte direkt",
+    "choiceTitle": "Toppen! Vill du...",
+    "choiceReview": "Skriva en recension",
+    "choiceEmail": "Mejla oss"
+  },
+  "edit": {
+    "permissionDeniedTitle": "Åtkomst nekad",
+    "permissionDeniedBody": "Du måste tillåta åtkomst till bilder.",
+    "uploadImage": "Ladda upp bild",
+    "chooseImage": "Välj bild",
+    "productName": "Produktnamn",
+    "companyName": "Företagsnamn",
+    "companyCountry": "Företagets land",
+    "parentCompany": "Moderbolag",
+    "parentCompanyCountry": "Moderbolagets land",
+    "selectCountry": "Välj land",
+    "save": "Spara",
+    "savedAndReviewed": "Sparad och väntar på granskning.",
+    "search": "Sök..."
+  },
+  "scanResult": {
+    "madeByEuropeanCompany": "Tillverkad av ett europeiskt företag",
+    "company": "Företag",
+    "parentCompany": "Moderbolag",
+    "europeanAlternatives": "Europeiska alternativ",
+    "noEuropeanAlternatives": "Inga europeiska alternativ hittades.",
+    "lookingForAlternatives": "Söker efter alternativ...",
+    "unnamed": "Namnlös",
+    "confirmPrompt": "Är all information ovan korrekt?",
+    "confirmYes": "Ja, informationen stämmer",
+    "confirmEdit": "Redigera",
+    "confirmedByPerson": "{{count}} person har bekräftat denna produktinformation.",
+    "confirmedByPeople": "{{count}} personer har bekräftat denna produktinformation.",
+    "packagingDisclaimer": "Kontrollera alltid förpackningen för den mest exakta informationen.",
+    "foundError": "Hittade du ett fel?",
+    "errorInSubjectPrefix": "Fel i produkt"
+  },
+  "test": {
+    "supportEuropeanProducts": "Stöd europeiska produkter",
+    "infoText": "Skanna produkter för att kontrollera om de är tillverkade i Europa eller av ett europeiskt företag. Stöd den lokala ekonomin och fatta bättre köpbeslut.",
+    "euProduct": "EU-produkt",
+    "nonEuProduct": "Icke EU-produkt",
+    "euSupportText": "Att stödja europeiska produkter stärker vår ekonomi och hjälper till att bevara arbetstillfällen inom EU."
+  },
+  "database": {
+    "badgeEu": "EU",
+    "badgeNonEu": "icke EU",
+    "country": "Land: {{country}}",
+    "category": "Kategori: {{category}}",
+    "searchPlaceholder": "Sök företag eller länder...",
+    "filterByOrigin": "Filtrera efter ursprung:",
+    "filterAll": "Alla",
+    "filterEuropean": "Europeisk",
+    "filterNonEuropean": "Icke-europeisk",
+    "empty": "Inga matchande företag hittades."
+  },
+  "search": {
+    "title": "Sök",
+    "description": "Sök efter en produkt med streckkod eller ett företag med namn.",
+    "modeProduct": "Produkt",
+    "modeCompany": "Företag",
+    "inputPlaceholderProduct": "Ange streckkod (EAN)",
+    "inputPlaceholderCompany": "Ange företagsnamn",
+    "searchButton": "Sök",
+    "enterQuery": "Ange ett sökvärde.",
+    "noCompanyFound": "Inget företag hittades för denna sökning.",
+    "loading": "Söker...",
+    "companyResult": "Företagsresultat",
+    "company": "Företag",
+    "parentCompany": "Moderbolag",
+    "country": "Land",
+    "fromEuropeanCompany": "Från europeiskt företag"
+  },
+  "about": {
+    "title": "Om Buy European",
+    "shareTitle": "Dela appen",
+    "shareBody": "Gillar du Buy European? Dela den med vänner och familj!",
+    "shareMessage": "Upptäck Buy European – appen som hjälper dig att hitta produkter från europeiska företag. Tillgänglig nu:\n\nAndroid: https://play.google.com/store/apps/details?id=com.carsam.buyeuropean\nApple: https://apps.apple.com/lt/app/buy-european/id6742723534",
+    "missionTitle": "Vårt uppdrag",
+    "missionBody": "Buy European hjälper konsumenter att fatta mer medvetna köpbeslut. Genom att identifiera produkter tillverkade i Europa och produkter från europeiska företag stödjer vi den lokala ekonomin, minskar långa transportutsläpp och skyddar europeiska arbetstillfällen och traditioner.",
+    "howItWorksTitle": "Så fungerar det",
+    "howItWorksBody": "Med vår app kan du skanna streckkoder och direkt kontrollera om en produkt är tillverkad i Europa eller av ett europeiskt företag. Vi underhåller en databas med tusentals produkter och deras moderbolag, som uppdateras regelbundet.",
+    "howItWorksLead": "När du skannar en produkt visar vi:",
+    "featureProductOrigin": "Produktens ursprung (europeisk eller icke-europeisk)",
+    "featureParentCompany": "Information om moderbolaget",
+    "featureHeadquarters": "Företagets huvudkontorsland",
+    "whyTitle": "Varför Buy European?",
+    "whyLead": "Att välja europeiska produkter hjälper till att:",
+    "whyLocalEconomies": "Stödja lokala ekonomier och arbetstillfällen",
+    "whyCarbon": "Minska utsläpp från långväga transporter",
+    "whyTraditions": "Bevara europeiska tillverkningstraditioner",
+    "whyStandards": "Säkerställa att produkter uppfyller EU:s kvalitets- och säkerhetskrav",
+    "contactTitle": "Kontakta oss",
+    "contactBody": "Har du frågor, förslag eller hittat felaktig produktinformation? Vi hör gärna från dig!",
+    "privacyPolicy": "Integritetspolicy",
+    "copyright": "Buy European ©️ 2025"
+  }
+}

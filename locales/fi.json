@@ -1,0 +1,147 @@
+{
+  "common": {
+    "appName": "Buy European",
+    "shareApp": "Jaa sovellus",
+    "emailUs": "Lähetä meille sähköpostia",
+    "goBack": "Takaisin",
+    "addProduct": "Lisää tuote",
+    "error": "Virhe",
+    "unknown": "Tuntematon",
+    "yes": "Kyllä",
+    "no": "Ei"
+  },
+  "tabs": {
+    "scan": "Skannaa",
+    "about": "Tietoa",
+    "search": "Haku",
+    "test": "Testi",
+    "edit": "Muokkaa"
+  },
+  "headers": {
+    "scanProduct": "Skannaa tuote",
+    "aboutBuyEuropean": "Tietoa Buy Europeanista",
+    "search": "Haku",
+    "editCompanyInformation": "Muokkaa yrityksen tietoja"
+  },
+  "scan": {
+    "cameraPermissionTitle": "Kameran käyttöoikeus",
+    "cameraPermissionBody": "Anna kameran käyttöoikeus tuotteen skannaamiseksi",
+    "allowCameraAccess": "Salli kameran käyttö",
+    "positionBarcode": "Aseta viivakoodi kehykseen",
+    "webDemoMode": "Verkkodemo",
+    "webDemoHelp": "Kameraskannaus ei ole saatavilla verkossa. Kokeile näitä esimerkkituotteita:",
+    "sampleCocaColaNonEu": "Coca-Cola (ei EU)",
+    "samplePhilipsEu": "Philips-parranajokone (EU)",
+    "sampleCadburyNonEu": "Cadbury-suklaa (ei EU)",
+    "sampleNutellaEu": "Nutella (EU)"
+  },
+  "product": {
+    "notFound": "Tuotetta ei löytynyt"
+  },
+  "notFound": {
+    "title": "Hups!",
+    "message": "Tätä näkymää ei ole olemassa.",
+    "goHome": "Siirry aloitusnäyttöön"
+  },
+  "feedback": {
+    "appFeedbackSubject": "Sovelluspalautetta",
+    "askTitle": "Pidätkö sovelluksesta toistaiseksi?",
+    "askPositive": "Kyllä! Rakastan sitä",
+    "askNegative": "En oikeastaan",
+    "choiceTitle": "Hienoa! Haluatko...",
+    "choiceReview": "Kirjoita arvostelu",
+    "choiceEmail": "Lähetä meille sähköpostia"
+  },
+  "edit": {
+    "permissionDeniedTitle": "Lupa evätty",
+    "permissionDeniedBody": "Sinun tulee sallia pääsy kuviin.",
+    "uploadImage": "Lataa kuva",
+    "chooseImage": "Valitse kuva",
+    "productName": "Tuotteen nimi",
+    "companyName": "Yrityksen nimi",
+    "companyCountry": "Yrityksen maa",
+    "parentCompany": "Emoyhtiö",
+    "parentCompanyCountry": "Emoyhtiön maa",
+    "selectCountry": "Valitse maa",
+    "save": "Tallenna",
+    "savedAndReviewed": "Tallennettu ja odottaa tarkistusta.",
+    "search": "Hae..."
+  },
+  "scanResult": {
+    "madeByEuropeanCompany": "Eurooppalaisen yrityksen valmistama",
+    "company": "Yritys",
+    "parentCompany": "Emoyhtiö",
+    "europeanAlternatives": "Eurooppalaiset vaihtoehdot",
+    "noEuropeanAlternatives": "Eurooppalaisia vaihtoehtoja ei löytynyt.",
+    "lookingForAlternatives": "Etsitään vaihtoehtoja...",
+    "unnamed": "Nimetön",
+    "confirmPrompt": "Onko kaikki yllä oleva tieto oikein?",
+    "confirmYes": "Kyllä, tieto on oikein",
+    "confirmEdit": "Muokkaa",
+    "confirmedByPerson": "{{count}} henkilö on vahvistanut tämän tuotetiedon.",
+    "confirmedByPeople": "{{count}} henkilöä on vahvistanut tämän tuotetiedon.",
+    "packagingDisclaimer": "Tarkista aina pakkauksen merkinnät tarkimpien tietojen varmistamiseksi.",
+    "foundError": "Löysitkö virheen?",
+    "errorInSubjectPrefix": "Virhe tuotteessa"
+  },
+  "test": {
+    "supportEuropeanProducts": "Tue eurooppalaisia tuotteita",
+    "infoText": "Skannaa tuotteita tarkistaaksesi, onko ne valmistettu Euroopassa tai eurooppalaisen yrityksen toimesta. Tue paikallista taloutta ja tee parempia ostopäätöksiä.",
+    "euProduct": "EU-tuote",
+    "nonEuProduct": "Ei EU -tuote",
+    "euSupportText": "Eurooppalaisten tuotteiden tukeminen vahvistaa talouttamme ja auttaa säilyttämään työpaikat EU:ssa."
+  },
+  "database": {
+    "badgeEu": "EU",
+    "badgeNonEu": "ei EU",
+    "country": "Maa: {{country}}",
+    "category": "Kategoria: {{category}}",
+    "searchPlaceholder": "Hae yrityksiä tai maita...",
+    "filterByOrigin": "Suodata alkuperän mukaan:",
+    "filterAll": "Kaikki",
+    "filterEuropean": "Eurooppalainen",
+    "filterNonEuropean": "Ei-eurooppalainen",
+    "empty": "Hakua vastaavia yrityksiä ei löytynyt."
+  },
+  "search": {
+    "title": "Haku",
+    "description": "Hae tuotetta viivakoodilla tai yritysta nimella.",
+    "modeProduct": "Tuote",
+    "modeCompany": "Yritys",
+    "inputPlaceholderProduct": "Syota viivakoodi (EAN)",
+    "inputPlaceholderCompany": "Syota yrityksen nimi",
+    "searchButton": "Hae",
+    "enterQuery": "Anna hakuarvo.",
+    "noCompanyFound": "Talla haulla ei loytynyt yritysta.",
+    "loading": "Haetaan...",
+    "companyResult": "Yritystulos",
+    "company": "Yritys",
+    "parentCompany": "Emoyhtio",
+    "country": "Maa",
+    "fromEuropeanCompany": "Eurooppalainen yritys"
+  },
+  "about": {
+    "title": "Tietoa Buy Europeanista",
+    "shareTitle": "Jaa sovellus",
+    "shareBody": "Pidätkö Buy Europeanista? Jaa se ystäville ja perheelle!",
+    "shareMessage": "Tutustu Buy Europeaniin – sovellukseen, joka auttaa löytämään eurooppalaisten yritysten tuotteita. Saatavilla nyt:\n\nAndroid: https://play.google.com/store/apps/details?id=com.carsam.buyeuropean\nApple: https://apps.apple.com/lt/app/buy-european/id6742723534",
+    "missionTitle": "Missiomme",
+    "missionBody": "Buy European auttaa kuluttajia tekemään tietoisempia ostopäätöksiä. Tunnistamalla Euroopassa valmistetut tuotteet ja eurooppalaisten yritysten tuotteet tuemme paikallista taloutta, vähennämme pitkän kuljetuksen päästöjä ja suojelemme eurooppalaisia työpaikkoja ja perinteitä.",
+    "howItWorksTitle": "Miten se toimii",
+    "howItWorksBody": "Sovelluksemme avulla voit skannata viivakoodeja ja tarkistaa heti, onko tuote valmistettu Euroopassa tai eurooppalaisen yrityksen toimesta. Ylläpidämme tietokantaa tuhansista tuotteista ja niiden emoyhtiöistä, ja sitä päivitetään säännöllisesti.",
+    "howItWorksLead": "Kun skannaat tuotteen, näytämme:",
+    "featureProductOrigin": "Tuotteen alkuperä (eurooppalainen tai ei-eurooppalainen)",
+    "featureParentCompany": "Tietoa emoyhtiöstä",
+    "featureHeadquarters": "Yrityksen pääkonttorin maa",
+    "whyTitle": "Miksi Buy European?",
+    "whyLead": "Eurooppalaisten tuotteiden valinta auttaa:",
+    "whyLocalEconomies": "Tukemaan paikallista taloutta ja työpaikkoja",
+    "whyCarbon": "Vähentämään pitkän matkan kuljetuksen päästöjä",
+    "whyTraditions": "Säilyttämään eurooppalaisia valmistusperinteitä",
+    "whyStandards": "Varmistamaan, että tuotteet täyttävät EU:n laatu- ja turvallisuusvaatimukset",
+    "contactTitle": "Ota yhteyttä",
+    "contactBody": "Onko kysymyksiä, ehdotuksia tai virheellinen tuotetieto? Kuulemme mielellämme!",
+    "privacyPolicy": "Tietosuojaseloste",
+    "copyright": "Buy European ©️ 2025"
+  }
+}

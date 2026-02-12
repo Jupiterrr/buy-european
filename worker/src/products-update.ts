@@ -1,5 +1,5 @@
 import { changeRequestsTable, confirmationTable, getDb, newPoductTable, productsTable } from './db/schema';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 
 export async function saveProductInDb(env: Env, product:LocalProduct, isAbusive:boolean) {
     if (isAbusive === true) {
@@ -14,8 +14,18 @@ export async function saveProductInDb(env: Env, product:LocalProduct, isAbusive:
         .get();
 
     if (existing) {
-        const oldData = JSON.parse(existing.data ?? '');
-        const newData = JSON.parse(product.data ?? '');
+        let oldData: Record<string, unknown> = {};
+        let newData: Record<string, unknown> = {};
+        try {
+            oldData = existing.data ? JSON.parse(existing.data) : {};
+        } catch {
+            oldData = {};
+        }
+        try {
+            newData = product.data ? JSON.parse(product.data) : {};
+        } catch {
+            newData = {};
+        }
 
         const merged = { ...oldData, ...newData };
 
@@ -115,7 +125,7 @@ export async function getProductByEan(env: Env, ean: string) {
     const product = await getDb(env).select().from(newPoductTable).where(
         and(
             eq(newPoductTable.ean, ean),
-            eq(newPoductTable.status, 'accepted') 
+            inArray(newPoductTable.status, ['accepted', 'submitted'])
         )
     ).get();
     return product;

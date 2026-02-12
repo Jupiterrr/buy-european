@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
+import "@/lib/i18n";
 
 declare global {
   interface Window {
@@ -26,6 +26,7 @@ export default function RootLayout() {
             title: "",
             headerTintColor: "black",
             headerTransparent: true,
+            headerBackTitleVisible: false,
           }}
         />
         <Stack.Screen name="+not-found" />
